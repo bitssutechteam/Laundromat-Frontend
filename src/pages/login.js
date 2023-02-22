@@ -6,12 +6,14 @@ import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Checkbox from "@mui/joy/Checkbox";
 import FormControl from "@mui/joy/FormControl";
+import AspectRatio from "@mui/joy/AspectRatio";
 import FormLabel, { formLabelClasses } from "@mui/joy/FormLabel";
 import IconButton, { IconButtonProps } from "@mui/joy/IconButton";
+import { useNavigate } from "react-router-dom";
 import Link from "@mui/joy/Link";
 import Input from "@mui/joy/Input";
 import Typography from "@mui/joy/Typography";
-import api from '../axios';
+import axios from "axios";
 
 function ColorSchemeToggle({ onClick, ...props }) {
   const { mode, setMode } = useColorScheme();
@@ -31,7 +33,7 @@ function ColorSchemeToggle({ onClick, ...props }) {
       {...props}
       onClick={(event) => {
         if (mode === "light") {
-          setMode("dark");
+          setMode("light");
         } else {
           setMode("light");
         }
@@ -48,19 +50,34 @@ function ColorSchemeToggle({ onClick, ...props }) {
  */
 export default function JoySignInSideTemplate() {
 
-  const handleLogin = () =>{
-    api.post("coord_login", [
-      {
-        username:"root",
-        password:"admin",
+  const handleLogin = (data) => {
+    var config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: "https://su-bitspilani.org/su/signings-api/coord_login",
+      headers: {
+        "x-authorization":
+          "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
+        "x-origin": "826bead8ad2ad9ce955028045788f371",
+        "Content-Type": "application/json",
       },
-    ]).then(({data}) => {
-      console.log(data);
-    });
-  }
+      data: data,
+    };
+
+    axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        localStorage.setItem("token", response.data.idToken);
+        navigate("/Laundro_Items");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+  const navigate = useNavigate();
 
   return (
-    <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
+    <CssVarsProvider defaultMode="light" disableTransitionOnChange>
       <CssBaseline />
       <GlobalStyles
         styles={{
@@ -112,23 +129,11 @@ export default function JoySignInSideTemplate() {
             <Typography
               fontWeight="lg"
               startDecorator={
-                <Box
-                  component="span"
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    background: (theme) =>
-                      `linear-gradient(45deg, ${theme.vars.palette.primary.solidBg}, ${theme.vars.palette.primary.solidBg} 30%, ${theme.vars.palette.primary.softBg})`,
-                    borderRadius: "50%",
-                    boxShadow: (theme) => theme.shadow.md,
-                    "--joy-shadowChannel": (theme) =>
-                      theme.vars.palette.primary.mainChannel,
-                  }}
-                />
+                <AspectRatio ratio="1" sx={{ minWidth: 60 }}>
+                  <img src="./Logo.png"></img>
+                </AspectRatio>
               }
-            >
-              Logo
-            </Typography>
+            ></Typography>
             <ColorSchemeToggle />
           </Box>
           <Box
@@ -156,37 +161,42 @@ export default function JoySignInSideTemplate() {
           >
             <div>
               <Typography component="h2" fontSize="xl2" fontWeight="lg">
-                Welcome back
+                Laundromat Login
               </Typography>
-              <Typography level="body2" sx={{ my: 1, mb: 3 }}>
+              {/* <Typography level="body2" sx={{ my: 1, mb: 3 }}>
                 Let&apos;s get started! Please enter your details.
-              </Typography>
+              </Typography> */}
             </div>
             <form
               onSubmit={(event) => {
                 event.preventDefault();
                 const formElements = event.currentTarget.elements;
                 const data = {
-                  email: formElements.email.value,
+                  username: formElements.username.value,
                   password: formElements.password.value,
-                  persistent: formElements.persistent.checked,
                 };
-                alert(JSON.stringify(data, null, 2));
+                handleLogin(data);
               }}
             >
               <FormControl required>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Username</FormLabel>
                 <Input
-                  placeholder="Enter your email"
-                  type="email"
-                  name="email"
+                  placeholder="Enter your Username"
+                  type="text"
+                  name="username"
+
                 />
               </FormControl>
               <FormControl required>
                 <FormLabel>Password</FormLabel>
-                <Input placeholder="•••••••" type="password" name="password" />
+                <Input
+                  placeholder="••••••••"
+                  type="password"
+                  name="password"
+
+                />
               </FormControl>
-              <Box
+              {/* <Box
                 sx={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -201,7 +211,7 @@ export default function JoySignInSideTemplate() {
                 <Link fontSize="sm" href="#replace-with-a-link" fontWeight="lg">
                   Forgot password
                 </Link>
-              </Box>
+              </Box> */}
               <Button type="submit" fullWidth onClick={handleLogin}>
                 Sign in
               </Button>
@@ -209,7 +219,7 @@ export default function JoySignInSideTemplate() {
           </Box>
           <Box component="footer" sx={{ py: 3 }}>
             <Typography level="body3" textAlign="center">
-              © Your company {new Date().getFullYear()}
+              © Students' Union Technical Team {new Date().getFullYear()}
             </Typography>
           </Box>
         </Box>
