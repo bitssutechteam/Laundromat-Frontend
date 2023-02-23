@@ -1,15 +1,18 @@
 import * as React from "react";
 import { Tabs, Tab } from "@mui/material";
+import FormLabel, { formLabelClasses } from "@mui/joy/FormLabel";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
 import Button from "@mui/joy/Button";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { useState } from "react";
+
 import {
   IconButton,
   Box,
@@ -22,6 +25,7 @@ import {
   FormControl,
   Input,
 } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -54,8 +58,11 @@ function a11yProps(index) {
 export default function LaundroItems() {
   const token = localStorage.getItem("token");
   const [open, setOpen] = React.useState(false);
+  const [openSignings, setoOenSignings] = React.useState(false);
   const [data, setData] = useState();
+  const [change, setChange] = useState(0);
   const [signings, setSignings] = useState();
+  const [Quantity, setQuantity] = useState(0);
 
   const handleClose = () => {
     setOpen(false);
@@ -88,46 +95,131 @@ export default function LaundroItems() {
       console.log(response.data.laundro_signings);
       setSignings(response.data.laundro_signings);
     });
-  }, [token]);
+  }, [token, change]);
 
   const [value, setValue] = React.useState(0);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
+  const handleCreateSignings = (data_s) => {
+    var data = new FormData();
+    data.append("email", data_s.email);
+    data.append("item_name",data_s.item_name);
+    data.append("quantity", data_s.quantity);
+    console.log(data);
+    axios(config("add_laundro_siginigs", "post", data))
+      .then(function (response) {
+        console.log(response.data);
+        setChange(!change);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    
+  };
+  const handleUpdateSignings = (idx) => {
+    var data = new FormData();
+    data.append("email", signings[idx].email);
+    data.append("item_name", signings[idx].event_name);
+    data.append("quantity", signings[idx].quantity + Quantity);
+    data.append(
+      "qunatity_delivered",
+      signings[idx].qunatity_delivered + Quantity
+    );
+    data.append("amount", signings[idx].amount);
+
+    var config_ = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: `https://su-bitspilani.org/su/signings-api/update_laundro_siginigs`,
+      headers: {
+        "x-authorization":
+          "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
+        "x-origin": "826bead8ad2ad9ce955028045788f371",
+        "X-COORD-ID":
+          "gAAAAABj9471--XTq5BHHEujzLsB8iB_nf9uMgTtBghPlR1vqW1FVGyNpAm3Rt_C4zG4Njhmr_uClqq5GznLgTkP5F8giELkkNAVrHMIgdBkIq8F3i4zlujgiEBsFlWxztyIDsJ68JdI",
+      },
+      data: data,
+    };
+    console.log(config_);
+    axios(config_).then(function (response) {
+      console.log(response.data);
+      setChange(!change);
+    }).catch(function (error) {
+      console.log(error);
+    });
+  };
+  const handleDeleteSignings = (idx) => {
+    console.log(signings[idx]);
+
+    var data = new FormData();
+    data.append("email", signings[idx].email);
+    data.append("item_name", signings[idx].event_name);
+
+    var config_ = {
+      method: "post",
+      url: "https://su-bitspilani.org/su/signings-api/delete_laundro_signings",
+      headers: {
+        "x-authorization":
+          "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
+        "x-origin": "826bead8ad2ad9ce955028045788f371",
+        "X-COORD-ID":
+          "gAAAAABj9471--XTq5BHHEujzLsB8iB_nf9uMgTtBghPlR1vqW1FVGyNpAm3Rt_C4zG4Njhmr_uClqq5GznLgTkP5F8giELkkNAVrHMIgdBkIq8F3i4zlujgiEBsFlWxztyIDsJ68JdI",
+      },
+      data: data,
+    };
+    axios(config_).then(function (response) {
+      console.log(response.data);
+      setChange(!change);
+    });
+  };
+
   const handleLaundro = (data_l) => {
     setOpen(true);
+
     var data = new FormData();
     data.append("name", data_l.name);
     data.append("price", data_l.price);
     data.append("cancellation_date", data_l.cancellation);
     data.append("description", data_l.description);
-    data.append("event_venue", data_l.venue);
+    data.append("event_venue", "");
     data.append("event_date", data_l.date);
 
     axios(config("add_laundro", "post", data)).then(function (response) {
       console.log(response.data);
+      setOpen(false);
+      setChange(!change);
     });
   };
   const submitLaundro = () => {
-     setOpen(false);
-  }
+    setOpen(false);
+  };
+  var location = useLocation();
+
   return (
-    <Box sx={{ mt: 3, p: 1 }}>
+    <Box sx={{p: 1 }}>
+    <h1>Laundromat CMS</h1>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
           value={value}
           onChange={handleChange}
           aria-label="basic tabs example"
         >
-          <Tab label="Signings" {...a11yProps(0)} />
-          <Tab label="Laundro" {...a11yProps(1)} />
+          <Tab label="Laundro" {...a11yProps(0)} />
+          <Tab label="Signings" {...a11yProps(1)} />
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
         <Box variant="outlined" color="neutral">
           <Box>
-            <Button variant="outlined" onClick={handleLaundro}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                handleLaundro();
+                location.reload();
+              }}
+            >
               Create Laundros
             </Button>
           </Box>
@@ -164,45 +256,84 @@ export default function LaundroItems() {
               </TableBody>
             </Table>
           </TableContainer>
+
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Create Laundro</DialogTitle>
             <DialogContent>
-              <FormControl variant="standard" sx={{ m: 2 }}>
-                <InputLabel htmlFor="component-simple">Name</InputLabel>
-                <Input id="component-simple" />
-              </FormControl>
-              <FormControl variant="standard" sx={{ m: 2 }}>
-                <InputLabel htmlFor="component-simple">Price</InputLabel>
-                <Input id="component-simple" />
-              </FormControl>
-              <FormControl variant="standard" sx={{ m: 2 }}>
-                <InputLabel htmlFor="component-simple">
-                  cancellation_date
-                </InputLabel>
-                <Input id="component-simple" />
-              </FormControl>
-              <FormControl variant="standard" sx={{ m: 2 }}>
-                <InputLabel htmlFor="component-simple">description</InputLabel>
-                <Input id="component-simple" />
-              </FormControl>
-              <FormControl variant="standard" sx={{ m: 2 }}>
-                <InputLabel htmlFor="component-simple">date</InputLabel>
-                <Input id="component-simple" />
-              </FormControl>
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const formElements = event.currentTarget.elements;
+                  const data = {
+                    name: formElements.plan.value,
+                    price: formElements.price.value,
+                    cancellation: formElements.cancel_date.value,
+                    description: formElements.desc.value,
+                    date: formElements.date.value,
+                  };
+                  console.log(data);
+                  handleLaundro(data);
+                  // handleLogin(data);
+                }}
+              >
+                <FormControl sx={{ m: 1 }}>
+                  <FormLabel>Plan Name</FormLabel>
+                  <Input type="text" name="plan" />
+                </FormControl>
+                <FormControl sx={{ m: 1 }}>
+                  <FormLabel>Price</FormLabel>
+                  <Input type="number" name="price" />
+                </FormControl>
+                <FormControl sx={{ m: 1 }}>
+                  <FormLabel>cancellation_date</FormLabel>
+                  <Input type="date" name="cancel_date" />
+                </FormControl>
+                <FormControl sx={{ m: 1 }}>
+                  <FormLabel>description</FormLabel>
+                  <Input type="text" name="desc" />
+                </FormControl>
+
+                <FormControl sx={{ m: 1 }}>
+                  <FormLabel>event_date</FormLabel>
+                  <Input type="date" name="date" />
+                </FormControl>
+                {/* <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Checkbox
+                  size="sm"
+                  label="Remember for 30 days"
+                  name="persistent"
+                />
+                <Link fontSize="sm" href="#replace-with-a-link" fontWeight="lg">
+                  Forgot password
+                </Link>
+              </Box> */}
+                <Button type="submit" fullWidth>
+                  Sign in
+                </Button>
+              </form>
             </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Cancel</Button>
-              <Button onClick={handleClose}>submit</Button>
-            </DialogActions>
           </Dialog>
         </Box>
       </TabPanel>
       <TabPanel value={value} index={1}>
         <Box variant="outlined" color="neutral">
           <Box>
-            <Button variant="outlined">Create Signings</Button>
-            <Button variant="outlined">Update Signings</Button>
-            <Button variant="outlined">Delete Signings</Button>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setoOenSignings(true);
+              }}
+            >
+              Create Signings
+            </Button>
+            {/* <Button variant="outlined">Update Signings</Button> */}
+            {/* <Button variant="outlined">Delete Signings</Button> */}
           </Box>
           <TableContainer>
             <Table
@@ -219,19 +350,53 @@ export default function LaundroItems() {
                   <TableCell>Event Name</TableCell>
                   <TableCell>Quantity</TableCell>
                   <TableCell>Quantity delivered</TableCell>
+                  <TableCell />
+                  <TableCell />
                   {/* <th>Status</th> */}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {signings
-                  ? signings.map((row) => (
-                      <TableRow key={row.name}>
+                  ? signings.map((row, idx) => (
+                      <TableRow key={idx}>
                         <TableCell>{row.name}</TableCell>
                         <TableCell>{row.email}</TableCell>
                         <TableCell>{row.event_date}</TableCell>
                         <TableCell>{row.event_name}</TableCell>
                         <TableCell>{row.quantity}</TableCell>
                         <TableCell>{row.qunatity_delivered}</TableCell>
+                        <TableCell>
+                          <Box sx={{ display: "flex", flexDirection: "row" }}>
+                            <Button
+                              variant="outlined"
+                              onClick={() => {
+                                handleUpdateSignings(idx);
+                              }}
+                              sx={{ mx: 1 }}
+                            >
+                              Update Signing
+                            </Button>
+                            <TextField
+                              id="outlined-basic"
+                              label="Quantity Delivered"
+                              variant="outlined"
+                              onChange={(e) => {
+                                setQuantity(e.target.value);
+                              }}
+                            />
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outlined"
+                            onClick={() => {
+                              handleDeleteSignings(idx);
+                            }}
+                          >
+                            Delete Signing
+                          </Button>
+                        </TableCell>
+
                         {/* <td>{row.status}</td> */}
                       </TableRow>
                     ))
@@ -241,6 +406,48 @@ export default function LaundroItems() {
           </TableContainer>
         </Box>
       </TabPanel>
+      <Dialog
+        open={openSignings}
+        onClose={() => {
+          setoOenSignings(false);
+        }}
+      >
+        <DialogTitle>Create Signings</DialogTitle>
+        <DialogContent>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formElements = event.currentTarget.elements;
+              console.log();
+              const data = {
+                email: formElements.email.value,
+                item_name: formElements.item_name.value,
+                quantity: formElements.quantity.value,
+              };
+              console.log(data);
+              handleCreateSignings(data);
+              setoOenSignings(false);
+              // handleLogin(data);
+            }}
+          >
+            <FormControl sx={{ m: 1 }}>
+              <FormLabel>Email</FormLabel>
+              <Input type="email" name="email" />
+            </FormControl>
+            <FormControl sx={{ m: 1 }}>
+              <FormLabel>Plan Name</FormLabel>
+              <Input type="text" name="item_name" />
+            </FormControl>
+            <FormControl sx={{ m: 1 }}>
+              <FormLabel>Quantity</FormLabel>
+              <Input type="number" name="quantity" />
+            </FormControl>
+            <Button type="submit" fullWidth>
+              Sign in
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 }
