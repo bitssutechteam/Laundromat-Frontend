@@ -130,7 +130,7 @@ export default function JoySignInSideTemplate() {
               fontWeight="lg"
               startDecorator={
                 <AspectRatio ratio="1" sx={{ minWidth: 60 }}>
-                  <img src="./Logo.png"></img>
+                  <img src="Logo.png"></img>
                 </AspectRatio>
               }
             ></Typography>

@@ -8,7 +8,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<JoySignInSideTemplate />} />
+        <Route
+          path="/Laundromat-Frontend"
+          element={<JoySignInSideTemplate />}
+        />
+        <Route
+          path="/"
+          element={<JoySignInSideTemplate />}
+        />
         <Route path="/Laundro_Items" element={<LaundroItems />} />
       </Routes>
     </BrowserRouter>
