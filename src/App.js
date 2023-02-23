@@ -27,7 +27,7 @@ function App() {
           element={<JoySignInSideTemplate />}
         />
         <Route path="/" element={<JoySignInSideTemplate />} />
-        {localStorage.getItem("token") && localStorage.getItem("token")!= 'undefined'&& (
+        {localStorage.getItem("token")&& (
           <Route path="/Laundro_Items" element={<LaundroItems />} />
         )}
       </Routes>

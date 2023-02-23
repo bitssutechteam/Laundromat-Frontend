@@ -25,7 +25,7 @@ import {
   FormControl,
   Input,
 } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -63,6 +63,8 @@ export default function LaundroItems() {
   const [change, setChange] = useState(0);
   const [signings, setSignings] = useState();
   const [Quantity, setQuantity] = useState(0);
+  var location = useLocation();
+  const navigate = useNavigate();
 
   const handleClose = () => {
     setOpen(false);
@@ -88,8 +90,7 @@ export default function LaundroItems() {
         setData(response.data.laundro);
       })
       .catch(function (error) {
-        toast.error(error);
-        console.log(error);
+        navigate("/Laundromat-Frontend");
       });
 
     axios(config("get_laundro_siginigs", "get")).then(function (response) {
@@ -146,7 +147,6 @@ export default function LaundroItems() {
     axios(config_)
       .then(function (response) {
         console.log(response.data);
-        toast.success("changed");
         setChange(!change);
       })
       .catch(function (error) {
@@ -199,7 +199,7 @@ export default function LaundroItems() {
   const submitLaundro = () => {
     setOpen(false);
   };
-  var location = useLocation();
+  
 
   return (
     <Box sx={{ p: 1 }}>
@@ -318,7 +318,7 @@ export default function LaundroItems() {
                 </Link>
               </Box> */}
                 <Button type="submit" fullWidth>
-                  Sign in
+                  submit
                 </Button>
               </form>
             </DialogContent>
@@ -447,7 +447,7 @@ export default function LaundroItems() {
               <Input type="number" name="quantity" />
             </FormControl>
             <Button type="submit" fullWidth>
-              Sign in
+              submit
             </Button>
           </form>
         </DialogContent>
