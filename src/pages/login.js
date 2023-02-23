@@ -14,6 +14,7 @@ import Link from "@mui/joy/Link";
 import Input from "@mui/joy/Input";
 import Typography from "@mui/joy/Typography";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function ColorSchemeToggle({ onClick, ...props }) {
   const { mode, setMode } = useColorScheme();
@@ -49,7 +50,6 @@ function ColorSchemeToggle({ onClick, ...props }) {
  * This template uses [`Inter`](https://fonts.google.com/specimen/Inter?query=inter) font.
  */
 export default function JoySignInSideTemplate() {
-
   const handleLogin = (data) => {
     var config = {
       method: "post",
@@ -66,11 +66,15 @@ export default function JoySignInSideTemplate() {
 
     axios(config)
       .then(function (response) {
-        console.log(response.data);
+        console.log(response.data.message);
         localStorage.setItem("token", response.data.idToken);
-        navigate("/Laundro_Items");
+        
+        response.data.message == "Invalid Credentials!"
+          ? toast.error("Invalid Credentials")
+          : navigate("/Laundro_Items");
       })
       .catch(function (error) {
+        toast.error(error); 
         console.log(error);
       });
   };
@@ -184,17 +188,11 @@ export default function JoySignInSideTemplate() {
                   placeholder="Enter your Username"
                   type="text"
                   name="username"
-
                 />
               </FormControl>
               <FormControl required>
                 <FormLabel>Password</FormLabel>
-                <Input
-                  placeholder="••••••••"
-                  type="password"
-                  name="password"
-
-                />
+                <Input placeholder="••••••••" type="password" name="password" />
               </FormControl>
               {/* <Box
                 sx={{

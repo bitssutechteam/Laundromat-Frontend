@@ -12,7 +12,7 @@ import Button from "@mui/joy/Button";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { useState } from "react";
-
+import { toast } from "react-toastify";
 import {
   IconButton,
   Box,
@@ -88,6 +88,7 @@ export default function LaundroItems() {
         setData(response.data.laundro);
       })
       .catch(function (error) {
+        toast.error(error);
         console.log(error);
       });
 
@@ -105,7 +106,7 @@ export default function LaundroItems() {
   const handleCreateSignings = (data_s) => {
     var data = new FormData();
     data.append("email", data_s.email);
-    data.append("item_name",data_s.item_name);
+    data.append("item_name", data_s.item_name);
     data.append("quantity", data_s.quantity);
     console.log(data);
     axios(config("add_laundro_siginigs", "post", data))
@@ -114,21 +115,20 @@ export default function LaundroItems() {
         setChange(!change);
       })
       .catch(function (error) {
+        toast.error(error);
         console.log(error);
       });
-    
   };
   const handleUpdateSignings = (idx) => {
     var data = new FormData();
     data.append("email", signings[idx].email);
     data.append("item_name", signings[idx].event_name);
-    data.append("quantity", signings[idx].quantity + Quantity);
     data.append(
-      "qunatity_delivered",
-      signings[idx].qunatity_delivered + Quantity
+      "quantity_delivered",
+      parseInt(signings[idx].qunatity_delivered) + parseInt(Quantity)
     );
     data.append("amount", signings[idx].amount);
-
+    console.log(data);
     var config_ = {
       method: "post",
       maxBodyLength: Infinity,
@@ -143,12 +143,16 @@ export default function LaundroItems() {
       data: data,
     };
     console.log(config_);
-    axios(config_).then(function (response) {
-      console.log(response.data);
-      setChange(!change);
-    }).catch(function (error) {
-      console.log(error);
-    });
+    axios(config_)
+      .then(function (response) {
+        console.log(response.data);
+        toast.success("changed");
+        setChange(!change);
+      })
+      .catch(function (error) {
+        console.log(error);
+        toast.error(error.response.data.message);
+      });
   };
   const handleDeleteSignings = (idx) => {
     console.log(signings[idx]);
@@ -198,8 +202,8 @@ export default function LaundroItems() {
   var location = useLocation();
 
   return (
-    <Box sx={{p: 1 }}>
-    <h1>Laundromat CMS</h1>
+    <Box sx={{ p: 1 }}>
+      <h1>Laundromat CMS</h1>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
           value={value}
