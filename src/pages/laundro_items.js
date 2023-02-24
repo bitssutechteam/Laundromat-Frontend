@@ -294,7 +294,7 @@ export default function LaundroItems() {
   };
 
   const requestSearch = (searchedVal) => {
-    const filteredRows = signings.filter((row) => {
+    const filteredRows = OGsignings.filter((row) => {
       return (
         row.name.toLowerCase().includes(searchedVal.toLowerCase()) ||
         row.email.toLowerCase().includes(searchedVal.toLowerCase())
