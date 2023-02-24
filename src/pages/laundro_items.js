@@ -221,6 +221,7 @@ export default function LaundroItems() {
     var data = new FormData();
     data.append("email", data_.email);
     data.append("item_name", data_.item_name);
+    data.append("new_item_name", data_.new_item_name);
     data.append("quantity", data_.quantity);
     data.append("quantity_delivered", data_.qunatity_delivered);
     data.append("amount", data_.amount);
@@ -322,7 +323,7 @@ export default function LaundroItems() {
         </Box>
         <TextField
           id="outlined-basic"
-          label="Search Email ID Sigings"
+          label="Search Email ID/Name Sigings"
           variant="outlined"
           onChange={(newValue) => {
             requestSearch(newValue.target.value);
@@ -662,7 +663,8 @@ export default function LaundroItems() {
                 const formElements = event.currentTarget.elements;
                 var data_ = {
                   email: formElements.email.value,
-                  item_name: formElements.item_name.value,
+                  item_name: signings[idx].event_name,
+                  new_item_name: formElements.item_name.value,
                   quantity: formElements.quantity.value,
                   qunatity_delivered: formElements.qunatity_delivered.value,
                   amount: signings[idx].amount,
