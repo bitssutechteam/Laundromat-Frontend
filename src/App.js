@@ -1,8 +1,7 @@
 import './App.css';
 import JoySignInSideTemplate from "./pages/login";
 import LaundroItems from './pages/laundro_items';
-import EmailNav from './pages/test';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, HashRouter } from "react-router-dom";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -27,7 +26,7 @@ function App() {
           element={<JoySignInSideTemplate />}
         />
         <Route path="/" element={<JoySignInSideTemplate />} />
-        {localStorage.getItem("token")&& (
+        {localStorage.getItem("token") && (
           <Route path="/Laundro_Items" element={<LaundroItems />} />
         )}
       </Routes>

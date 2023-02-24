@@ -21,12 +21,89 @@ import {
   DialogContentText,
   DialogContent,
   DialogActions,
-  InputLabel,
+  Select,
+  MenuItem,
   FormControl,
   Input,
+  TableFooter,
+  TablePagination,
 } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
 
+import { useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import LastPageIcon from "@mui/icons-material/LastPage";
+
+function TablePaginationActions(props) {
+  const theme = useTheme();
+  const { count, page, rowsPerPage, onPageChange } = props;
+
+  const handleFirstPageButtonClick = (event) => {
+    onPageChange(event, 0);
+  };
+
+  const handleBackButtonClick = (event) => {
+    onPageChange(event, page - 1);
+  };
+
+  const handleNextButtonClick = (event) => {
+    onPageChange(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = (event) => {
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+      </IconButton>
+      <IconButton
+        onClick={handleBackButtonClick}
+        disabled={page === 0}
+        aria-label="previous page"
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowRight />
+        ) : (
+          <KeyboardArrowLeft />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowLeft />
+        ) : (
+          <KeyboardArrowRight />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+      </IconButton>
+    </Box>
+  );
+}
+
+TablePaginationActions.propTypes = {
+  count: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+};
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -58,11 +135,30 @@ function a11yProps(index) {
 export default function LaundroItems() {
   const token = localStorage.getItem("token");
   const [open, setOpen] = React.useState(false);
+  const [idx, setIdx] = React.useState();
   const [openSignings, setoOenSignings] = React.useState(false);
+  const [openUpdateSignings, setOpenUpdateSignings] = React.useState(false);
   const [data, setData] = useState();
   const [change, setChange] = useState(0);
   const [signings, setSignings] = useState();
+  const [OGsignings, setOGSignings] = useState();
   const [Quantity, setQuantity] = useState(0);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [SearchQuery, setSearchQuery] = React.useState();
+
+  // const emptyRows =
+  //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   var location = useLocation();
   const navigate = useNavigate();
 
@@ -96,6 +192,7 @@ export default function LaundroItems() {
     axios(config("get_laundro_siginigs", "get")).then(function (response) {
       console.log(response.data.laundro_signings);
       setSignings(response.data.laundro_signings);
+      setOGSignings(response.data.laundro_signings);
     });
   }, [token, change]);
 
@@ -120,16 +217,15 @@ export default function LaundroItems() {
         console.log(error);
       });
   };
-  const handleUpdateSignings = (idx) => {
+  const handleUpdateSignings = (data_) => {
     var data = new FormData();
-    data.append("email", signings[idx].email);
-    data.append("item_name", signings[idx].event_name);
-    data.append(
-      "quantity_delivered",
-      parseInt(signings[idx].qunatity_delivered) + parseInt(Quantity)
-    );
-    data.append("amount", signings[idx].amount);
+    data.append("email", data_.email);
+    data.append("item_name", data_.item_name);
+    data.append("quantity", data_.quantity);
+    data.append("quantity_delivered", data_.qunatity_delivered);
+    data.append("amount", data_.amount);
     console.log(data);
+
     var config_ = {
       method: "post",
       maxBodyLength: Infinity,
@@ -196,25 +292,71 @@ export default function LaundroItems() {
       setChange(!change);
     });
   };
-  const submitLaundro = () => {
-    setOpen(false);
+
+  const requestSearch = (searchedVal) => {
+    const filteredRows = signings.filter((row) => {
+      return (
+        row.name.toLowerCase().includes(searchedVal.toLowerCase()) ||
+        row.email.toLowerCase().includes(searchedVal.toLowerCase())
+      );
+    });
+    setSignings(filteredRows);
   };
-  
+
+  const cancelSearch = () => {
+    setSearchQuery("");
+    setSignings(OGsignings);
+  };
 
   return (
-    <Box sx={{ p: 1 }}>
-      <h1>Laundromat CMS</h1>
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+    <Box sx={{ px: 2, my: 2 }}>
+      <Box
+        sx={{
+          p: 1,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box sx={{ mr: 3 }}>
+          <h2>Laundromat CMS</h2>
+        </Box>
+        <TextField
+          id="outlined-basic"
+          label="Search Email ID Sigings"
+          variant="outlined"
+          onChange={(newValue) => {
+            requestSearch(newValue.target.value);
+            newValue.target.value === "" && cancelSearch();
+          }}
+          sx={{ flexGrow: 1 }}
+        />
+        <Button onClick={cancelSearch} className="materialBtn">
+          Clear
+        </Button>
+        <Button
+          variant="outlined"
+          style={{ color: "red" }}
+          onClick={() => {
+            localStorage.removeItem("token");
+            navigate("/");
+          }}
+          sx={{ ml: 3 }}
+        >
+          Sign Out
+        </Button>
+      </Box>
+
+      <Box sx={{ borderBottom: 1, borderColor: "text.primary" }}>
         <Tabs
           value={value}
           onChange={handleChange}
           aria-label="basic tabs example"
         >
-          <Tab label="Laundro" {...a11yProps(0)} />
           <Tab label="Signings" {...a11yProps(1)} />
+          <Tab label="Laundro" {...a11yProps(0)} />
         </Tabs>
       </Box>
-      <TabPanel value={value} index={0}>
+      <TabPanel value={value} index={1}>
         <Box variant="outlined" color="neutral">
           <Box>
             <Button
@@ -325,7 +467,7 @@ export default function LaundroItems() {
           </Dialog>
         </Box>
       </TabPanel>
-      <TabPanel value={value} index={1}>
+      <TabPanel value={value} index={0}>
         <Box variant="outlined" color="neutral">
           <Box>
             <Button
@@ -354,6 +496,7 @@ export default function LaundroItems() {
                   <TableCell>Event Name</TableCell>
                   <TableCell>Quantity</TableCell>
                   <TableCell>Quantity delivered</TableCell>
+                  <TableCell>Amount</TableCell>
                   <TableCell />
                   <TableCell />
                   {/* <th>Status</th> */}
@@ -361,7 +504,13 @@ export default function LaundroItems() {
               </TableHead>
               <TableBody>
                 {signings
-                  ? signings.map((row, idx) => (
+                  ? (rowsPerPage > 0
+                      ? signings.slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                      : signings
+                    ).map((row, idx) => (
                       <TableRow key={idx}>
                         <TableCell>{row.name}</TableCell>
                         <TableCell>{row.email}</TableCell>
@@ -369,25 +518,19 @@ export default function LaundroItems() {
                         <TableCell>{row.event_name}</TableCell>
                         <TableCell>{row.quantity}</TableCell>
                         <TableCell>{row.qunatity_delivered}</TableCell>
+                        <TableCell>{row.amount}</TableCell>
                         <TableCell>
                           <Box sx={{ display: "flex", flexDirection: "row" }}>
                             <Button
                               variant="outlined"
                               onClick={() => {
-                                handleUpdateSignings(idx);
+                                setIdx(idx);
+                                setOpenUpdateSignings(true);
                               }}
                               sx={{ mx: 1 }}
                             >
                               Update Signing
                             </Button>
-                            <TextField
-                              id="outlined-basic"
-                              label="Quantity Delivered"
-                              variant="outlined"
-                              onChange={(e) => {
-                                setQuantity(e.target.value);
-                              }}
-                            />
                           </Box>
                         </TableCell>
                         <TableCell>
@@ -406,10 +549,36 @@ export default function LaundroItems() {
                     ))
                   : null}
               </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TablePagination
+                    rowsPerPageOptions={[
+                      5,
+                      10,
+                      25,
+                      { label: "All", value: -1 },
+                    ]}
+                    colSpan={3}
+                    count={signings ? signings.length : 0}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    SelectProps={{
+                      inputProps: {
+                        "aria-label": "rows per page",
+                      },
+                      native: true,
+                    }}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    ActionsComponent={TablePaginationActions}
+                  />
+                </TableRow>
+              </TableFooter>
             </Table>
           </TableContainer>
         </Box>
       </TabPanel>
+
       <Dialog
         open={openSignings}
         onClose={() => {
@@ -434,24 +603,151 @@ export default function LaundroItems() {
               // handleLogin(data);
             }}
           >
-            <FormControl sx={{ m: 1 }}>
+            <FormControl
+              sx={{
+                width: 250,
+                height: 50,
+              }}
+            >
               <FormLabel>Email</FormLabel>
               <Input type="email" name="email" />
             </FormControl>
             <FormControl sx={{ m: 1 }}>
               <FormLabel>Plan Name</FormLabel>
-              <Input type="text" name="item_name" />
+              {/* <Input type="text" name="item_name" /> */}
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                defaultValue="F-4"
+                name="item_name"
+                sx={{
+                  width: 200,
+                  height: 50,
+                }}
+              >
+                <MenuItem value={"F-4"}>F-4</MenuItem>
+                <MenuItem value={"I-4"}>I-4</MenuItem>
+                <MenuItem value={"F-8"}>F-8</MenuItem>
+                <MenuItem value={"I-8"}>I-8</MenuItem>
+                <MenuItem value={"F-10"}>F-10</MenuItem>
+                <MenuItem value={"I-10"}>I-10</MenuItem>
+                <MenuItem value={"F-15"}>F-15</MenuItem>
+                <MenuItem value={"I-15"}>I-15</MenuItem>
+              </Select>
             </FormControl>
-            <FormControl sx={{ m: 1 }}>
+            <FormControl>
               <FormLabel>Quantity</FormLabel>
               <Input type="number" name="quantity" />
             </FormControl>
             <Button type="submit" fullWidth>
-              submit
+              Submit
             </Button>
           </form>
         </DialogContent>
       </Dialog>
+
+      {signings && signings[idx] ? (
+        <Dialog
+          open={openUpdateSignings}
+          onClose={() => {
+            setOpenUpdateSignings(false);
+          }}
+        >
+          {/* {console.log(sig)} */}
+          <DialogTitle>Update Signings</DialogTitle>
+          <DialogContent>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                const formElements = event.currentTarget.elements;
+                var data_ = {
+                  email: formElements.email.value,
+                  item_name: formElements.item_name.value,
+                  quantity: formElements.quantity.value,
+                  qunatity_delivered: formElements.qunatity_delivered.value,
+                  amount: signings[idx].amount,
+                };
+                handleUpdateSignings(data_);
+                setOpenUpdateSignings(false);
+                // handleLogin(data_);
+              }}
+            >
+              <FormControl
+                sx={{
+                  width: 250,
+                  height: 50,
+                }}
+              >
+                <FormLabel>Email</FormLabel>
+                <Input
+                  type="email"
+                  name="email"
+                  defaultValue={signings[idx].email}
+                />
+              </FormControl>
+              <FormControl sx={{ m: 1 }}>
+                <FormLabel>Plan Name</FormLabel>
+                {/* <Input type="text" name="item_name" /> */}
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  defaultValue={signings[idx].event_name}
+                  name="item_name"
+                  sx={{
+                    width: 200,
+                    height: 50,
+                  }}
+                >
+                  <MenuItem value={"F-4"}>F-4</MenuItem>
+                  <MenuItem value={"I-4"}>I-4</MenuItem>
+                  <MenuItem value={"F-8"}>F-8</MenuItem>
+                  <MenuItem value={"I-8"}>I-8</MenuItem>
+                  <MenuItem value={"F-10"}>F-10</MenuItem>
+                  <MenuItem value={"I-10"}>I-10</MenuItem>
+                  <MenuItem value={"F-15"}>F-15</MenuItem>
+                  <MenuItem value={"I-15"}>I-15</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl>
+                <FormLabel>Quantity</FormLabel>
+                <Input
+                  type="number"
+                  name="quantity"
+                  defaultValue={signings[idx].quantity}
+                  sx={{
+                    width: 200,
+                    height: 50,
+                  }}
+                />
+              </FormControl>
+              <FormControl sx={{ mx: 2 }}>
+                <FormLabel>Quantity Delivered</FormLabel>
+                <Input
+                  type="number"
+                  name="qunatity_delivered"
+                  defaultValue={signings[idx].qunatity_delivered}
+                  sx={{
+                    width: 200,
+                    height: 50,
+                  }}
+                />
+              </FormControl>
+              <DialogActions>
+                <Button
+                  sx={{ my: 4 }}
+                  variant="outlined"
+                  type="submit"
+                  fullWidth
+                >
+                  Submit
+                </Button>
+              </DialogActions>
+            </form>
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <></>
+      )}
     </Box>
   );
 }
