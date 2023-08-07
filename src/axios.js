@@ -8,7 +8,7 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 
-  baseURL: "https://su-bitspilani.org/su/signings-api/",
+  baseURL: "https://su-bitspilani.org/su/users/coordinator-login/",
 });
 
 export default api;

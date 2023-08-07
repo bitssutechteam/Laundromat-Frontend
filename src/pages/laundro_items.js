@@ -183,16 +183,15 @@ export default function LaundroItems() {
   React.useEffect(() => {
     axios(config("list_laundro_items", "get"))
       .then(function (response) {
-        setData(response.data.laundro);
+        setData(response.data.data.packages);
       })
       .catch(function (error) {
         navigate("/Laundromat-Frontend");
       });
 
     axios(config("get_laundro_siginigs", "get")).then(function (response) {
-      console.log(response.data.laundro_signings);
-      setSignings(response.data.laundro_signings);
-      setOGSignings(response.data.laundro_signings);
+      setSignings(response.data.data.signings);
+      setOGSignings(response.data.data.signings);
     });
   }, [token, change]);
 
@@ -235,8 +234,7 @@ export default function LaundroItems() {
         "x-authorization":
           "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
         "x-origin": "826bead8ad2ad9ce955028045788f371",
-        "X-COORD-ID":
-          "gAAAAABj9471--XTq5BHHEujzLsB8iB_nf9uMgTtBghPlR1vqW1FVGyNpAm3Rt_C4zG4Njhmr_uClqq5GznLgTkP5F8giELkkNAVrHMIgdBkIq8F3i4zlujgiEBsFlWxztyIDsJ68JdI",
+        "X-COORD-ID": token,
       },
       data: data,
     };
@@ -255,7 +253,8 @@ export default function LaundroItems() {
     console.log(signings[idx]);
 
     var data = new FormData();
-    data.append("email", signings[idx].email);
+    console.log(signings[idx].event_name);
+    data.append("email", signings[idx].student.profile.email);
     data.append("item_name", signings[idx].event_name);
 
     var config_ = {
@@ -265,8 +264,7 @@ export default function LaundroItems() {
         "x-authorization":
           "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
         "x-origin": "826bead8ad2ad9ce955028045788f371",
-        "X-COORD-ID":
-          "gAAAAABj9471--XTq5BHHEujzLsB8iB_nf9uMgTtBghPlR1vqW1FVGyNpAm3Rt_C4zG4Njhmr_uClqq5GznLgTkP5F8giELkkNAVrHMIgdBkIq8F3i4zlujgiEBsFlWxztyIDsJ68JdI",
+        "X-COORD-ID":token,
       },
       data: data,
     };
@@ -285,6 +283,7 @@ export default function LaundroItems() {
     data.append("cancellation_date", data_l.cancellation);
     data.append("description", data_l.description);
     data.append("event_venue", "");
+    data.append("no_of_cycles", 1)
     data.append("event_date", data_l.date);
 
     axios(config("add_laundro", "post", data)).then(function (response) {
@@ -297,8 +296,12 @@ export default function LaundroItems() {
   const requestSearch = (searchedVal) => {
     const filteredRows = OGsignings.filter((row) => {
       return (
-        row.name.toLowerCase().includes(searchedVal.toLowerCase()) ||
-        row.email.toLowerCase().includes(searchedVal.toLowerCase())
+        row.student.profile.email
+          .toLowerCase()
+          .includes(searchedVal.toLowerCase()) ||
+        row.student.profile.name
+          .toLowerCase()
+          .includes(searchedVal.toLowerCase())
       );
     });
     setSignings(filteredRows);
@@ -394,8 +397,12 @@ export default function LaundroItems() {
                         <TableCell>{row.name}</TableCell>
                         <TableCell>{row.type}</TableCell>
                         <TableCell>{row.price}</TableCell>
-                        <TableCell>{row.event_date}</TableCell>
-                        <TableCell>{row.cancellation_end}</TableCell>
+                        <TableCell>
+                          {new Date(row.event_date).toString()}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(row.cancellation_date).toString()}
+                        </TableCell>
                         {/* <td>{row.status}</td> */}
                       </TableRow>
                     ))
@@ -513,13 +520,16 @@ export default function LaundroItems() {
                       : signings
                     ).map((row, idx) => (
                       <TableRow key={idx}>
-                        <TableCell>{row.name}</TableCell>
-                        <TableCell>{row.email}</TableCell>
-                        <TableCell>{row.event_date}</TableCell>
+                        <TableCell>{row.student.profile.name}</TableCell>
+                        <TableCell>{row.student.profile.email}</TableCell>
+                        <TableCell>
+                          {new Date(row.event_date).toString()}
+                        </TableCell>
                         <TableCell>{row.event_name}</TableCell>
                         <TableCell>{row.quantity}</TableCell>
-                        <TableCell>{row.qunatity_delivered}</TableCell>
-                        <TableCell>{row.amount}</TableCell>
+
+                        <TableCell>{row.quantity_delivered}</TableCell>
+                        <TableCell>{row.price}</TableCell>
                         <TableCell>
                           <Box sx={{ display: "flex", flexDirection: "row" }}>
                             <Button
@@ -544,7 +554,6 @@ export default function LaundroItems() {
                             Delete Signing
                           </Button>
                         </TableCell>
-
                         {/* <td>{row.status}</td> */}
                       </TableRow>
                     ))
@@ -661,13 +670,13 @@ export default function LaundroItems() {
               onSubmit={(event) => {
                 event.preventDefault();
                 const formElements = event.currentTarget.elements;
+                console.log(formElements);
                 var data_ = {
                   email: formElements.email.value,
                   item_name: signings[idx].event_name,
                   new_item_name: formElements.item_name.value,
-                  quantity: formElements.quantity.value,
+                  amount: formElements.quantity.value,
                   qunatity_delivered: formElements.qunatity_delivered.value,
-                  amount: signings[idx].amount,
                 };
                 handleUpdateSignings(data_);
                 setOpenUpdateSignings(false);
@@ -684,7 +693,7 @@ export default function LaundroItems() {
                 <Input
                   type="email"
                   name="email"
-                  defaultValue={signings[idx].email}
+                  defaultValue={signings[idx].student.profile.email}
                 />
               </FormControl>
               <FormControl sx={{ m: 1 }}>
@@ -711,7 +720,7 @@ export default function LaundroItems() {
                 </Select>
               </FormControl>
               <FormControl>
-                <FormLabel>Quantity</FormLabel>
+                <FormLabel>Amount</FormLabel>
                 <Input
                   type="number"
                   name="quantity"
@@ -723,11 +732,13 @@ export default function LaundroItems() {
                 />
               </FormControl>
               <FormControl sx={{ mx: 2 }}>
+                {console.log(signings[idx])}
+
                 <FormLabel>Quantity Delivered</FormLabel>
                 <Input
                   type="number"
                   name="qunatity_delivered"
-                  defaultValue={signings[idx].qunatity_delivered}
+                  defaultValue={signings[idx].quantity_delivered}
                   sx={{
                     width: 200,
                     height: 50,

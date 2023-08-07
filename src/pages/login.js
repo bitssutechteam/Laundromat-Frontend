@@ -54,20 +54,20 @@ export default function JoySignInSideTemplate() {
     var config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "https://su-bitspilani.org/su/signings-api/coord_login",
+      url: "https://su-bitspilani.org/su/users/coordinator-login/",
       headers: {
-        "x-authorization":
-          "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
-        "x-origin": "826bead8ad2ad9ce955028045788f371",
-        "Content-Type": "application/json",
+        // "x-authorization":
+        //   "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
+        // "x-origin": "826bead8ad2ad9ce955028045788f371",
+        // "Content-Type": "application/json",
       },
       data: data,
     };
 
     axios(config)
       .then(function (response) {
-        console.log(response.data.message);
-        localStorage.setItem("token", response.data.idToken);
+
+        localStorage.setItem("token", response.data.data.HTTP_X_COORD_ID);
         
         response.data.message == "Invalid Credentials!"
           ? toast.error("Invalid Credentials")
