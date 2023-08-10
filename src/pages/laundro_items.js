@@ -264,7 +264,7 @@ export default function LaundroItems() {
         "x-authorization":
           "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
         "x-origin": "826bead8ad2ad9ce955028045788f371",
-        "X-COORD-ID":token,
+        "X-COORD-ID": token,
       },
       data: data,
     };
@@ -283,7 +283,7 @@ export default function LaundroItems() {
     data.append("cancellation_date", data_l.cancellation);
     data.append("description", data_l.description);
     data.append("event_venue", "");
-    data.append("no_of_cycles", 1)
+    data.append("no_of_cycles", 1);
     data.append("event_date", data_l.date);
 
     axios(config("add_laundro", "post", data)).then(function (response) {
@@ -622,29 +622,26 @@ export default function LaundroItems() {
               <FormLabel>Email</FormLabel>
               <Input type="email" name="email" />
             </FormControl>
-            <FormControl sx={{ m: 1 }}>
-              <FormLabel>Plan Name</FormLabel>
-              {/* <Input type="text" name="item_name" /> */}
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                defaultValue="F-4"
-                name="item_name"
-                sx={{
-                  width: 200,
-                  height: 50,
-                }}
-              >
-                <MenuItem value={"F-4"}>F-4</MenuItem>
-                <MenuItem value={"I-4"}>I-4</MenuItem>
-                <MenuItem value={"F-8"}>F-8</MenuItem>
-                <MenuItem value={"I-8"}>I-8</MenuItem>
-                <MenuItem value={"F-10"}>F-10</MenuItem>
-                <MenuItem value={"I-10"}>I-10</MenuItem>
-                <MenuItem value={"F-15"}>F-15</MenuItem>
-                <MenuItem value={"I-15"}>I-15</MenuItem>
-              </Select>
-            </FormControl>
+            {data && (
+              <FormControl sx={{ m: 1 }}>
+                <FormLabel>Plan Name</FormLabel>
+                {/* <Input type="text" name="item_name" /> */}
+
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  name="item_name"
+                  sx={{
+                    width: 200,
+                    height: 50,
+                  }}
+                >
+                  {data.map((laundro) => (
+                    <MenuItem value={laundro.name}>{laundro.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
             <FormControl>
               <FormLabel>Quantity</FormLabel>
               <Input type="number" name="quantity" />
