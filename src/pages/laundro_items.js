@@ -476,117 +476,19 @@ export default function LaundroItems() {
         </Box>
       </TabPanel>
       <TabPanel value={value} index={0}>
-        <Box variant="outlined" color="neutral">
-          <Box>
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setoOenSignings(true);
-              }}
-            >
-              Create Signings
-            </Button>
-            {/* <Button variant="outlined">Update Signings</Button> */}
-            {/* <Button variant="outlined">Delete Signings</Button> */}
-          </Box>
-          <TableContainer>
-            <Table
-              sx={{ minWidth: 650 }}
-              size="small"
-              aria-label="a dense table"
-            >
-              <TableHead>
-                <TableRow>
-                  {/* <th style={{ width: "40%" }}>Column width (40%)</th> */}
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Event Date</TableCell>
-                  <TableCell>Event Name</TableCell>
-                  <TableCell>Quantity</TableCell>
-                  <TableCell>Quantity delivered</TableCell>
-                  <TableCell>Amount</TableCell>
-                  <TableCell />
-                  <TableCell />
-                  {/* <th>Status</th> */}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {signings
-                  ? (rowsPerPage > 0
-                      ? signings.slice(
-                          page * rowsPerPage,
-                          page * rowsPerPage + rowsPerPage
-                        )
-                      : signings
-                    ).map((row, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell>{row.student.profile.name}</TableCell>
-                        <TableCell>{row.student.profile.email}</TableCell>
-                        <TableCell>
-                          {new Date(row.event_date).toString()}
-                        </TableCell>
-                        <TableCell>{row.event_name}</TableCell>
-                        <TableCell>{row.quantity}</TableCell>
-
-                        <TableCell>{row.quantity_delivered}</TableCell>
-                        <TableCell>{row.price}</TableCell>
-                        <TableCell>
-                          <Box sx={{ display: "flex", flexDirection: "row" }}>
-                            <Button
-                              variant="outlined"
-                              onClick={() => {
-                                setIdx(idx);
-                                setOpenUpdateSignings(true);
-                              }}
-                              sx={{ mx: 1 }}
-                            >
-                              Update Signing
-                            </Button>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="outlined"
-                            onClick={() => {
-                              handleDeleteSignings(idx);
-                            }}
-                          >
-                            Delete Signing
-                          </Button>
-                        </TableCell>
-                        {/* <td>{row.status}</td> */}
-                      </TableRow>
-                    ))
-                  : null}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TablePagination
-                    rowsPerPageOptions={[
-                      5,
-                      10,
-                      25,
-                      { label: "All", value: -1 },
-                    ]}
-                    colSpan={3}
-                    count={signings ? signings.length : 0}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    SelectProps={{
-                      inputProps: {
-                        "aria-label": "rows per page",
-                      },
-                      native: true,
-                    }}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    ActionsComponent={TablePaginationActions}
-                  />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </TableContainer>
-        </Box>
+        <Signings
+          setoOenSignings={setoOenSignings}
+          signings={signings}
+          idx={idx}
+          setIdx={setIdx}
+          setOpenUpdateSignings={setOpenUpdateSignings}
+          handleDeleteSignings={handleDeleteSignings}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+          TablePaginationActions={TablePaginationActions}
+        />
       </TabPanel>
 
       <Dialog
@@ -755,6 +657,157 @@ export default function LaundroItems() {
       ) : (
         <></>
       )}
+    </Box>
+  );
+}
+
+function Signings({
+  setoOenSignings,
+  signings,
+  idx,
+  setIdx,
+  setOpenUpdateSignings,
+  handleDeleteSignings,
+  rowsPerPage,
+  page,
+  handleChangePage,
+  handleChangeRowsPerPage,
+  TablePaginationActions,
+}) {
+  return (
+    <Box variant="outlined" color="neutral">
+      <Box>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            setoOenSignings(true);
+          }}
+        >
+          Create Signings
+        </Button>
+        {/* <Button variant="outlined">Update Signings</Button> */}
+        {/* <Button variant="outlined">Delete Signings</Button> */}
+      </Box>
+      <TableContainer>
+        <Table
+          sx={{
+            minWidth: 650,
+          }}
+          size="small"
+          aria-label="a dense table"
+        >
+          <TableHead>
+            <TableRow>
+              {/* <th style={{ width: "40%" }}>Column width (40%)</th> */}
+              <TableCell>Date</TableCell>
+              <TableCell>Time</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>ID</TableCell>
+              <TableCell>Hostel</TableCell>
+              <TableCell>Room No</TableCell>
+              <TableCell>Mobile No</TableCell>
+
+              <TableCell>Plan Code</TableCell>
+              <TableCell>Qt</TableCell>
+              <TableCell>Amt</TableCell>
+              <TableCell />
+              <TableCell />
+              {/* <th>Status</th> */}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {signings
+              ? (rowsPerPage > 0
+                  ? signings.slice(
+                      page * rowsPerPage,
+                      page * rowsPerPage + rowsPerPage
+                    )
+                  : signings
+                ).map((row, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell>
+                      {new Date(row.event_date).toISOString().split("T")[0]}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(row.event_date).toLocaleTimeString("en-US")}
+                    </TableCell>
+                    <TableCell>{row.student.profile.name}</TableCell>
+                    {/* <TableCell>{row.student.profile.email}</TableCell> */}
+                    {/* <TableCell>{row.student.profile.id}</TableCell> */}
+                    <TableCell>{row.student.profile.bits_id}</TableCell>
+                    <TableCell>{row.hostel}</TableCell>
+                    <TableCell>{row.room_no}</TableCell>
+                    <TableCell>{row.student.profile.phone_number}</TableCell>
+                    <TableCell>{row.event_name}</TableCell>
+                    <TableCell>{row.quantity}</TableCell>
+                    {/* <TableCell>{row.quantity_delivered}</TableCell> */}
+                    <TableCell>{row.price}</TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                        }}
+                      >
+                        <Button
+                          variant="outlined"
+                          onClick={() => {
+                            setIdx(idx);
+                            setOpenUpdateSignings(true);
+                          }}
+                        >
+                          Update
+                        </Button>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outlined"
+                        onClick={() => {
+                          handleDeleteSignings(idx);
+                        }}
+                        sx={{
+                          color: "red",
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                    {/* <td>{row.status}</td> */}
+                  </TableRow>
+                ))
+              : null}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[
+                  5,
+                  10,
+                  25,
+                  {
+                    label: "All",
+                    value: -1,
+                  },
+                ]}
+                colSpan={3}
+                count={signings ? signings.length : 0}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                SelectProps={{
+                  inputProps: {
+                    "aria-label": "rows per page",
+                  },
+                  native: true,
+                }}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                ActionsComponent={TablePaginationActions}
+              />
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </TableContainer>
     </Box>
   );
 }
