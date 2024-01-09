@@ -10,6 +10,8 @@ import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/joy/Button";
 import Checkbox from "@mui/joy/Checkbox";
+import Snackbar from "@mui/joy/Snackbar";
+
 import axios from "axios";
 import PropTypes from "prop-types";
 import { useState } from "react";
@@ -148,6 +150,7 @@ export default function LaundroItems() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [SearchQuery, setSearchQuery] = React.useState();
   const [SearchQueryValue, setSearchQueryValue] = React.useState("");
+  const [snackbarData, setSnackbarData] = React.useState();
 
   // const emptyRows =
   //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
@@ -210,6 +213,9 @@ export default function LaundroItems() {
     console.log(data);
     axios(config("add_laundro_siginigs", "post", data))
       .then(function (response) {
+        setSnackbarData(response.data.message);
+        setOpen_snackbar(true);
+        
         console.log(response.data);
         setChange(!change);
       })
@@ -245,6 +251,8 @@ export default function LaundroItems() {
     axios(config_)
       .then(function (response) {
         console.log(response.data);
+        setSnackbarData(response.data.message);
+        setOpen_snackbar(true);
         setChange(!change);
       })
       .catch(function (error) {
@@ -273,6 +281,8 @@ export default function LaundroItems() {
     };
     axios(config_).then(function (response) {
       console.log(response.data);
+      setSnackbarData(response.data.message);
+      setOpen_snackbar(true);
       setChange(!change);
     });
   };
@@ -315,8 +325,25 @@ export default function LaundroItems() {
     setSignings(OGsignings);
   };
 
+  const [open_snackbar, setOpen_snackbar] = React.useState(false);
+
   return (
     <Box sx={{ px: 2, my: 2 }}>
+      <Snackbar
+        autoHideDuration={4000}
+        open={open_snackbar}
+        variant="soft"
+        color="neutral"
+        onClose={(event, reason) => {
+          if (reason === "clickaway") {
+            return;
+          }
+          setOpen_snackbar(false);
+        }}
+      >
+        {snackbarData ? snackbarData : "Something went wrong"}
+      </Snackbar>
+
       <Box
         sx={{
           p: 1,
@@ -327,6 +354,7 @@ export default function LaundroItems() {
         <Box sx={{ mr: 3 }}>
           <h2>Laundromat CMS</h2>
         </Box>
+
         <TextField
           id="outlined-basic"
           label="Search Email ID/Name Sigings"
@@ -352,9 +380,10 @@ export default function LaundroItems() {
             ),
           }}
         />
+
         <Button
-          variant="outlined"
-          style={{ color: "red" }}
+          variant="soft"
+          color="danger"
           onClick={() => {
             localStorage.removeItem("token");
             navigate("/");
@@ -560,7 +589,7 @@ export default function LaundroItems() {
               <FormLabel>Quantity</FormLabel>
               <Input type="number" name="quantity" />
             </FormControl>
-            <Button type="submit" fullWidth>
+            <Button type="submit" fullWidth sx={{ mt: 5 }}>
               Submit
             </Button>
           </form>
@@ -612,13 +641,16 @@ export default function LaundroItems() {
                   type="email"
                   name="email"
                   defaultValue={signings[idx].student.profile.email}
+                  disabled
                 />
-                <FormLabel>Card Given?</FormLabel>
-                {signings[idx].is_delivered ? (
-                  <Checkbox name="delivered" type="checkbox" defaultChecked />
-                ) : (
-                  <Checkbox name="delivered" type="checkbox" />
-                )}
+                <Box sx={{ my: 1 }}>
+                  <FormLabel>Card Given?</FormLabel>
+                  {signings[idx].is_delivered ? (
+                    <Checkbox name="delivered" type="checkbox" defaultChecked />
+                  ) : (
+                    <Checkbox name="delivered" type="checkbox" />
+                  )}
+                </Box>
               </FormControl>
 
               {data && (
@@ -669,7 +701,7 @@ export default function LaundroItems() {
               </FormControl> */}
               <DialogActions>
                 <Button
-                  sx={{ my: 4 }}
+                  sx={{ mt: 5 }}
                   variant="outlined"
                   type="submit"
                   fullWidth
@@ -824,9 +856,7 @@ function Signings({
                           // handleDeleteSignings(idx);
                           handleClickOpen();
                         }}
-                        sx={{
-                          color: "red",
-                        }}
+                        color="danger"
                       >
                         Delete
                       </Button>
@@ -851,6 +881,7 @@ function Signings({
                           color="danger"
                           onClick={() => {
                             handleDeleteSignings(idx);
+                            handleClose();
                           }}
                           variant="outlined"
                         >
