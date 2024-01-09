@@ -9,6 +9,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/joy/Button";
+import Checkbox from "@mui/joy/Checkbox";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { useState } from "react";
@@ -146,6 +147,7 @@ export default function LaundroItems() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [SearchQuery, setSearchQuery] = React.useState();
+  const [SearchQueryValue, setSearchQueryValue] = React.useState("");
 
   // const emptyRows =
   //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
@@ -224,6 +226,7 @@ export default function LaundroItems() {
     data.append("quantity", data_.quantity);
     data.append("quantity_delivered", data_.qunatity_delivered);
     data.append("amount", data_.amount);
+    data.append("is_delivered", data_.is_delivered);
     console.log(data);
 
     var config_ = {
@@ -328,15 +331,27 @@ export default function LaundroItems() {
           id="outlined-basic"
           label="Search Email ID/Name Sigings"
           variant="outlined"
+          value={SearchQueryValue}
           onChange={(newValue) => {
+            setSearchQueryValue(newValue.target.value);
             requestSearch(newValue.target.value);
             newValue.target.value === "" && cancelSearch();
           }}
           sx={{ flexGrow: 1 }}
+          InputProps={{
+            endAdornment: (
+              <Button
+                onClick={() => {
+                  setSearchQueryValue("");
+                  cancelSearch();
+                }}
+                className="materialBtn"
+              >
+                Clear
+              </Button>
+            ),
+          }}
         />
-        <Button onClick={cancelSearch} className="materialBtn">
-          Clear
-        </Button>
         <Button
           variant="outlined"
           style={{ color: "red" }}
@@ -355,6 +370,7 @@ export default function LaundroItems() {
           value={value}
           onChange={handleChange}
           aria-label="basic tabs example"
+          stripe="odd"
         >
           <Tab label="Signings" {...a11yProps(1)} />
           <Tab label="Laundro" {...a11yProps(0)} />
@@ -374,19 +390,15 @@ export default function LaundroItems() {
             </Button>
           </Box>
           <TableContainer>
-            <Table
-              sx={{ minWidth: 650 }}
-              size="small"
-              aria-label="a dense table"
-            >
+            <Table sx={{ minWidth: 650 }} size="lg" aria-label="a dense table">
               <TableHead>
                 <TableRow>
                   {/* <th style={{ width: "40%" }}>Column width (40%)</th> */}
                   <TableCell>Plan name</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>price</TableCell>
-                  <TableCell>event_date</TableCell>
-                  <TableCell>cancellation_end</TableCell>
+                  {/* <TableCell>Type</TableCell> */}
+                  <TableCell>Price</TableCell>
+                  {/* <TableCell>event_date</TableCell>
+                  <TableCell>cancellation_end</TableCell> */}
                   {/* <th>Status</th> */}
                 </TableRow>
               </TableHead>
@@ -395,14 +407,14 @@ export default function LaundroItems() {
                   ? data.map((row) => (
                       <TableRow key={row.name}>
                         <TableCell>{row.name}</TableCell>
-                        <TableCell>{row.type}</TableCell>
+                        {/* <TableCell>{row.type}</TableCell> */}
                         <TableCell>{row.price}</TableCell>
-                        <TableCell>
+                        {/* <TableCell>
                           {new Date(row.event_date).toString()}
                         </TableCell>
                         <TableCell>
                           {new Date(row.cancellation_date).toString()}
-                        </TableCell>
+                        </TableCell> */}
                         {/* <td>{row.status}</td> */}
                       </TableRow>
                     ))
@@ -562,21 +574,28 @@ export default function LaundroItems() {
             setOpenUpdateSignings(false);
           }}
         >
-          {/* {console.log(sig)} */}
           <DialogTitle>Update Signings</DialogTitle>
           <DialogContent>
             <form
               onSubmit={(event) => {
                 event.preventDefault();
                 const formElements = event.currentTarget.elements;
-                console.log(formElements);
+                console.log();
+
                 var data_ = {
                   email: formElements.email.value,
                   item_name: signings[idx].event_name,
                   new_item_name: formElements.item_name.value,
                   amount: signings[idx].quantity, //  major bt
-                  qunatity_delivered: signings[idx].quantity,
+                  qunatity_delivered: formElements.delivered.checked ? 1 : 0,
+                  is_delivered:
+                    formElements.delivered.checked
+                      .toString()
+                      .charAt(0)
+                      .toUpperCase() +
+                    formElements.delivered.checked.toString().slice(1),
                 };
+
                 handleUpdateSignings(data_);
                 setOpenUpdateSignings(false);
                 // handleLogin(data_);
@@ -594,7 +613,14 @@ export default function LaundroItems() {
                   name="email"
                   defaultValue={signings[idx].student.profile.email}
                 />
+                <FormLabel>Card Given?</FormLabel>
+                {signings[idx].is_delivered ? (
+                  <Checkbox name="delivered" type="checkbox" defaultChecked />
+                ) : (
+                  <Checkbox name="delivered" type="checkbox" />
+                )}
               </FormControl>
+
               {data && (
                 <FormControl sx={{ m: 1 }}>
                   <FormLabel>Plan Name</FormLabel>
@@ -674,6 +700,16 @@ function Signings({
   handleChangeRowsPerPage,
   TablePaginationActions,
 }) {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Box variant="outlined" color="neutral">
       <Box>
@@ -710,6 +746,7 @@ function Signings({
               <TableCell>Plan Code</TableCell>
               <TableCell>Qt</TableCell>
               <TableCell>Amt</TableCell>
+              <TableCell>Card given</TableCell>
               <TableCell />
               <TableCell />
               {/* <th>Status</th> */}
@@ -743,6 +780,26 @@ function Signings({
                     {/* <TableCell>{row.quantity_delivered}</TableCell> */}
                     <TableCell>{row.price}</TableCell>
                     <TableCell>
+                      {/* {row.is_delivered ? (
+                        <Checkbox
+                          color="neutral"
+                          disabled
+                          variant="outlined"
+                          defaultChecked
+                        />
+                      ) : (
+                        <Checkbox color="neutral" disabled variant="outlined" />
+                      )} */}
+
+                      <Checkbox
+                        color="neutral"
+                        disabled
+                        variant="outlined"
+                        // value={row.is_delivered ? "checked" : ""}
+                        checked={row.is_delivered}
+                      />
+                    </TableCell>
+                    <TableCell>
                       <Box
                         sx={{
                           display: "flex",
@@ -764,7 +821,8 @@ function Signings({
                       <Button
                         variant="outlined"
                         onClick={() => {
-                          handleDeleteSignings(idx);
+                          // handleDeleteSignings(idx);
+                          handleClickOpen();
                         }}
                         sx={{
                           color: "red",
@@ -773,6 +831,33 @@ function Signings({
                         Delete
                       </Button>
                     </TableCell>
+                    <Dialog
+                      open={open}
+                      onClose={handleClose}
+                      aria-labelledby="alert-dialog-title"
+                      aria-describedby="alert-dialog-description"
+                    >
+                      <DialogTitle id="alert-dialog-title">
+                        {"Delete the Student's Signing?"}
+                      </DialogTitle>
+                      <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                          Are you sure?
+                        </DialogContentText>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleClose}>Disagree</Button>
+                        <Button
+                          color="danger"
+                          onClick={() => {
+                            handleDeleteSignings(idx);
+                          }}
+                          variant="outlined"
+                        >
+                          Agree
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
                     {/* <td>{row.status}</td> */}
                   </TableRow>
                 ))
