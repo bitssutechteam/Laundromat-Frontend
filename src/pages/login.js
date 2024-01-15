@@ -68,14 +68,12 @@ export default function JoySignInSideTemplate() {
       .then(function (response) {
 
         localStorage.setItem("token", response.data.data.HTTP_X_COORD_ID);
-        
-        response.data.message == "Invalid Credentials!"
-          ? toast.error("Invalid Credentials")
-          : navigate("/Laundro_Items");
+        toast.info(response.data.message)
+        localStorage.getItem("token") && navigate("/Laundro_Items");
       })
       .catch(function (error) {
-        toast.error(error); 
-        console.log(error);
+        // toast.error(error); 
+        // console.log(error);
       });
   };
   const navigate = useNavigate();
