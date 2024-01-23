@@ -11,6 +11,9 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/joy/Button";
 import Checkbox from "@mui/joy/Checkbox";
 import Snackbar from "@mui/joy/Snackbar";
+import Link from "@mui/joy/Link";
+import CircularProgress from "@mui/joy/CircularProgress";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 import axios from "axios";
 import PropTypes from "prop-types";
@@ -147,7 +150,7 @@ export default function LaundroItems() {
   const [OGsignings, setOGSignings] = useState();
   const [Quantity, setQuantity] = useState(0);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(100);
   const [SearchQuery, setSearchQuery] = React.useState();
   const [SearchQueryValue, setSearchQueryValue] = React.useState("");
   const [snackbarData, setSnackbarData] = React.useState();
@@ -195,7 +198,18 @@ export default function LaundroItems() {
       });
 
     axios(config("get_laundro_siginigs", "get")).then(function (response) {
-      setSignings(response.data.data.signings);
+      setSignings(
+        response.data.data.signings.map((signing) => ({
+          ...signing,
+          get name() {
+            return this.student.profile.name;
+          },
+
+          get bid() {
+            return this.student.profile.bits_id;
+          },
+        }))
+      );
       setOGSignings(response.data.data.signings);
     });
   }, [token, change]);
@@ -215,7 +229,7 @@ export default function LaundroItems() {
       .then(function (response) {
         setSnackbarData(response.data.message);
         setOpen_snackbar(true);
-        
+
         console.log(response.data);
         setChange(!change);
       })
@@ -719,6 +733,38 @@ export default function LaundroItems() {
   );
 }
 
+function Tablehead({
+  createSortHandler,
+  active,
+  order,
+  tableheadtitle,
+  tableheadtitletag,
+}) {
+  return (
+    <TableCell>
+      <Link
+        underline="none"
+        color="neutral"
+        component="button"
+        onClick={createSortHandler(tableheadtitle)}
+        fontWeight="lg"
+        sx={{ display: "grid", placeItems: "center" }}
+        // endDecorator={<ArrowDownwardIcon sx={{ opacity: active ? 1 : 0 }} />}
+        // sx={{
+        //   "& svg": {
+        //     transition: "0.2s",
+        //     transform:
+        //       active && order === "desc" ? "rotate(0deg)" : "rotate(180deg)",
+        //   },
+        //   "&:hover": { "& svg": { opacity: 1 } },
+        // }}
+      >
+        {tableheadtitletag}
+      </Link>
+    </TableCell>
+  );
+}
+
 function Signings({
   setoOenSignings,
   signings,
@@ -734,6 +780,9 @@ function Signings({
 }) {
   const [open, setOpen] = React.useState(false);
 
+  const [order, setOrder] = React.useState("asc");
+  const [orderBy, setOrderBy] = React.useState("hostel");
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -741,6 +790,49 @@ function Signings({
   const handleClose = () => {
     setOpen(false);
   };
+
+  function descendingComparator(a, b, orderBy) {
+    if (b[orderBy] < a[orderBy]) {
+      return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+      return 1;
+    }
+    return 0;
+  }
+
+  function getComparator(order, orderBy) {
+    return order === "desc"
+      ? (a, b) => descendingComparator(a, b, orderBy)
+      : (a, b) => -descendingComparator(a, b, orderBy);
+  }
+
+  function stableSort(array, comparator) {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) {
+        return order;
+      }
+      return a[1] - b[1];
+    });
+    return stabilizedThis.map((el) => el[0]);
+  }
+
+  const createSortHandler = (property) => (event) => {
+    handleRequestSort(event, property);
+  };
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "asc" : "desc");
+    setOrderBy(property);
+  };
+
+  // const createSortHandler = (property) => (event) => {
+  //   onRequestSort(event, property);
+  // };
+  const active = orderBy;
 
   return (
     <Box variant="outlined" color="neutral">
@@ -765,54 +857,103 @@ function Signings({
           aria-label="a dense table"
         >
           <TableHead>
-            <TableRow>
-              {/* <th style={{ width: "40%" }}>Column width (40%)</th> */}
-              <TableCell>Date</TableCell>
-              <TableCell>Time</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>ID</TableCell>
-              <TableCell>Hostel</TableCell>
-              <TableCell>Room No</TableCell>
-              <TableCell>Mobile No</TableCell>
+            {signings && (
+              <TableRow>
+                {/* <th style={{ width: "40%" }}>Column width (40%)</th> */}
+                <TableCell>Date</TableCell>
+                <TableCell>Time</TableCell>
+                {/* <TableCell>Name</TableCell>
+                 */}
+                <Tablehead
+                  createSortHandler={createSortHandler}
+                  active={active}
+                  order={order}
+                  tableheadtitle={"name"}
+                  tableheadtitletag={"Name"}
+                />
+                <Tablehead
+                  createSortHandler={createSortHandler}
+                  active={active}
+                  order={order}
+                  tableheadtitle={"bid"}
+                  tableheadtitletag={"BITS ID"}
+                />
+                {/* <TableCell>ID</TableCell> */}
+                <Tablehead
+                  createSortHandler={createSortHandler}
+                  active={active}
+                  order={order}
+                  tableheadtitle={"hostel"}
+                  tableheadtitletag={"Hostel"}
+                />
+                <Tablehead
+                  createSortHandler={createSortHandler}
+                  active={active}
+                  order={order}
+                  tableheadtitle={"room_no"}
+                  tableheadtitletag={"Room No"}
+                />
 
-              <TableCell>Plan Code</TableCell>
-              <TableCell>Qt</TableCell>
-              <TableCell>Amt</TableCell>
-              <TableCell>Card given</TableCell>
-              <TableCell />
-              <TableCell />
-              {/* <th>Status</th> */}
-            </TableRow>
+                {/* <TableCell>Room No</TableCell> */}
+                <TableCell>Mobile No</TableCell>
+
+                <Tablehead
+                  createSortHandler={createSortHandler}
+                  active={active}
+                  order={order}
+                  tableheadtitle={"Plan Code"}
+                />
+                <TableCell>Qt</TableCell>
+                <Tablehead
+                  createSortHandler={createSortHandler}
+                  active={active}
+                  order={order}
+                  tableheadtitle={"quantity"}
+                  tableheadtitletag={"Amount"}
+                />
+                <Tablehead
+                  createSortHandler={createSortHandler}
+                  active={active}
+                  order={order}
+                  tableheadtitle={"is_delivered"}
+                  tableheadtitletag={"Card Given"}
+                />
+                <TableCell />
+                <TableCell />
+                {/* <th>Status</th> */}
+              </TableRow>
+            )}
           </TableHead>
           <TableBody>
-            {signings
-              ? (rowsPerPage > 0
-                  ? signings.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    )
-                  : signings
-                ).map((row, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell>
-                      {new Date(row.event_date).toISOString().split("T")[0]}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(row.event_date).toLocaleTimeString("en-US")}
-                    </TableCell>
-                    <TableCell>{row.student.profile.name}</TableCell>
-                    {/* <TableCell>{row.student.profile.email}</TableCell> */}
-                    {/* <TableCell>{row.student.profile.id}</TableCell> */}
-                    <TableCell>{row.student.profile.bits_id}</TableCell>
-                    <TableCell>{row.hostel}</TableCell>
-                    <TableCell>{row.room_no}</TableCell>
-                    <TableCell>{row.student.profile.phone_number}</TableCell>
-                    <TableCell>{row.event_name}</TableCell>
-                    <TableCell>{row.quantity}</TableCell>
-                    {/* <TableCell>{row.quantity_delivered}</TableCell> */}
-                    <TableCell>{row.price}</TableCell>
-                    <TableCell>
-                      {/* {row.is_delivered ? (
+            {signings ? (
+              (rowsPerPage > 0
+                ? stableSort(signings, getComparator(order, orderBy)).slice(
+                    page * rowsPerPage,
+                    page * rowsPerPage + rowsPerPage
+                  )
+                : signings
+              ).map((row, idx) => (
+                <TableRow key={idx}>
+                  {console.log(row)}
+                  <TableCell>
+                    {new Date(row.event_date).toISOString().split("T")[0]}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(row.event_date).toLocaleTimeString("en-US")}
+                  </TableCell>
+                  <TableCell>{row.student.profile.name}</TableCell>
+                  {/* <TableCell>{row.student.profile.email}</TableCell> */}
+                  {/* <TableCell>{row.student.profile.id}</TableCell> */}
+                  <TableCell>{row.student.profile.bits_id}</TableCell>
+                  <TableCell>{row.hostel}</TableCell>
+                  <TableCell>{row.room_no}</TableCell>
+                  <TableCell>{row.student.profile.phone_number}</TableCell>
+                  <TableCell>{row.event_name}</TableCell>
+                  <TableCell>{row.quantity}</TableCell>
+                  {/* <TableCell>{row.quantity_delivered}</TableCell> */}
+                  <TableCell>{row.price}</TableCell>
+                  <TableCell>
+                    {/* {row.is_delivered ? (
                         <Checkbox
                           color="neutral"
                           disabled
@@ -823,76 +964,84 @@ function Signings({
                         <Checkbox color="neutral" disabled variant="outlined" />
                       )} */}
 
-                      <Checkbox
-                        color="neutral"
-                        disabled
-                        variant="outlined"
-                        // value={row.is_delivered ? "checked" : ""}
-                        checked={row.is_delivered}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                        }}
-                      >
-                        <Button
-                          variant="outlined"
-                          onClick={() => {
-                            setIdx(idx);
-                            setOpenUpdateSignings(true);
-                          }}
-                        >
-                          Update
-                        </Button>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
+                    <Checkbox
+                      color="neutral"
+                      disabled
+                      variant="outlined"
+                      // value={row.is_delivered ? "checked" : ""}
+                      checked={row.is_delivered}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                      }}
+                    >
                       <Button
                         variant="outlined"
                         onClick={() => {
-                          // handleDeleteSignings(idx);
-                          handleClickOpen();
+                          setIdx(idx);
+                          setOpenUpdateSignings(true);
                         }}
-                        color="danger"
                       >
-                        Delete
+                        Update
                       </Button>
-                    </TableCell>
-                    <Dialog
-                      open={open}
-                      onClose={handleClose}
-                      aria-labelledby="alert-dialog-title"
-                      aria-describedby="alert-dialog-description"
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        // handleDeleteSignings(idx);
+                        handleClickOpen();
+                      }}
+                      color="danger"
                     >
-                      <DialogTitle id="alert-dialog-title">
-                        {"Delete the Student's Signing?"}
-                      </DialogTitle>
-                      <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                          Are you sure?
-                        </DialogContentText>
-                      </DialogContent>
-                      <DialogActions>
-                        <Button onClick={handleClose}>Disagree</Button>
-                        <Button
-                          color="danger"
-                          onClick={() => {
-                            handleDeleteSignings(idx);
-                            handleClose();
-                          }}
-                          variant="outlined"
-                        >
-                          Agree
-                        </Button>
-                      </DialogActions>
-                    </Dialog>
-                    {/* <td>{row.status}</td> */}
-                  </TableRow>
-                ))
-              : null}
+                      Delete
+                    </Button>
+                  </TableCell>
+                  <Dialog
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                  >
+                    <DialogTitle id="alert-dialog-title">
+                      {"Delete the Student's Signing?"}
+                    </DialogTitle>
+                    <DialogContent>
+                      <DialogContentText id="alert-dialog-description">
+                        Are you sure?
+                      </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleClose}>Disagree</Button>
+                      <Button
+                        color="danger"
+                        onClick={() => {
+                          handleDeleteSignings(idx);
+                          handleClose();
+                        }}
+                        variant="outlined"
+                      >
+                        Agree
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                  {/* <td>{row.status}</td> */}
+                </TableRow>
+              ))
+            ) : (
+              <Box
+                sx={{ display: "grid", placeItems: "center", width: "90vw" }}
+              >
+                <Button startDecorator={<CircularProgress variant="solid" />}>
+                  Loading…
+                </Button>
+              </Box>
+            )}
           </TableBody>
           <TableFooter>
             <TableRow>
@@ -901,6 +1050,9 @@ function Signings({
                   5,
                   10,
                   25,
+                  50,
+                  100,
+                  200,
                   {
                     label: "All",
                     value: -1,
