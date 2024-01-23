@@ -150,7 +150,7 @@ export default function LaundroItems() {
   const [OGsignings, setOGSignings] = useState();
   const [Quantity, setQuantity] = useState(0);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(100);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [SearchQuery, setSearchQuery] = React.useState();
   const [SearchQueryValue, setSearchQueryValue] = React.useState("");
   const [snackbarData, setSnackbarData] = React.useState();
@@ -748,7 +748,6 @@ function Tablehead({
         component="button"
         onClick={createSortHandler(tableheadtitle)}
         fontWeight="lg"
-        sx={{ display: "grid", placeItems: "center" }}
         // endDecorator={<ArrowDownwardIcon sx={{ opacity: active ? 1 : 0 }} />}
         // sx={{
         //   "& svg": {
@@ -825,7 +824,7 @@ function Signings({
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "asc" : "desc");
+    setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
@@ -848,16 +847,16 @@ function Signings({
         {/* <Button variant="outlined">Update Signings</Button> */}
         {/* <Button variant="outlined">Delete Signings</Button> */}
       </Box>
-      <TableContainer>
-        <Table
-          sx={{
-            minWidth: 650,
-          }}
-          size="small"
-          aria-label="a dense table"
-        >
-          <TableHead>
-            {signings && (
+      {signings ? (
+        <TableContainer>
+          <Table
+            sx={{
+              minWidth: 650,
+            }}
+            size="small"
+            aria-label="a dense table"
+          >
+            <TableHead>
               <TableRow>
                 {/* <th style={{ width: "40%" }}>Column width (40%)</th> */}
                 <TableCell>Date</TableCell>
@@ -922,38 +921,37 @@ function Signings({
                 <TableCell />
                 {/* <th>Status</th> */}
               </TableRow>
-            )}
-          </TableHead>
-          <TableBody>
-            {signings ? (
-              (rowsPerPage > 0
-                ? stableSort(signings, getComparator(order, orderBy)).slice(
-                    page * rowsPerPage,
-                    page * rowsPerPage + rowsPerPage
-                  )
-                : signings
-              ).map((row, idx) => (
-                <TableRow key={idx}>
-                  {console.log(row)}
-                  <TableCell>
-                    {new Date(row.event_date).toISOString().split("T")[0]}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(row.event_date).toLocaleTimeString("en-US")}
-                  </TableCell>
-                  <TableCell>{row.student.profile.name}</TableCell>
-                  {/* <TableCell>{row.student.profile.email}</TableCell> */}
-                  {/* <TableCell>{row.student.profile.id}</TableCell> */}
-                  <TableCell>{row.student.profile.bits_id}</TableCell>
-                  <TableCell>{row.hostel}</TableCell>
-                  <TableCell>{row.room_no}</TableCell>
-                  <TableCell>{row.student.profile.phone_number}</TableCell>
-                  <TableCell>{row.event_name}</TableCell>
-                  <TableCell>{row.quantity}</TableCell>
-                  {/* <TableCell>{row.quantity_delivered}</TableCell> */}
-                  <TableCell>{row.price}</TableCell>
-                  <TableCell>
-                    {/* {row.is_delivered ? (
+            </TableHead>
+            <TableBody>
+              {signings
+                ? (rowsPerPage > 0
+                    ? stableSort(signings, getComparator(order, orderBy)).slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                    : signings
+                  ).map((row, idx) => (
+                    <TableRow key={idx}>
+                      {console.log(row)}
+                      <TableCell>
+                        {new Date(row.event_date).toISOString().split("T")[0]}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(row.event_date).toLocaleTimeString("en-US")}
+                      </TableCell>
+                      <TableCell>{row.student.profile.name}</TableCell>
+                      {/* <TableCell>{row.student.profile.email}</TableCell> */}
+                      {/* <TableCell>{row.student.profile.id}</TableCell> */}
+                      <TableCell>{row.student.profile.bits_id}</TableCell>
+                      <TableCell>{row.hostel}</TableCell>
+                      <TableCell>{row.room_no}</TableCell>
+                      <TableCell>{row.student.profile.phone_number}</TableCell>
+                      <TableCell>{row.event_name}</TableCell>
+                      <TableCell>{row.quantity}</TableCell>
+                      {/* <TableCell>{row.quantity_delivered}</TableCell> */}
+                      <TableCell>{row.price}</TableCell>
+                      <TableCell>
+                        {/* {row.is_delivered ? (
                         <Checkbox
                           color="neutral"
                           disabled
@@ -964,118 +962,121 @@ function Signings({
                         <Checkbox color="neutral" disabled variant="outlined" />
                       )} */}
 
-                    <Checkbox
-                      color="neutral"
-                      disabled
-                      variant="outlined"
-                      // value={row.is_delivered ? "checked" : ""}
-                      checked={row.is_delivered}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                      }}
-                    >
-                      <Button
-                        variant="outlined"
-                        onClick={() => {
-                          setIdx(idx);
-                          setOpenUpdateSignings(true);
-                        }}
+                        <Checkbox
+                          color="neutral"
+                          disabled
+                          variant="outlined"
+                          // value={row.is_delivered ? "checked" : ""}
+                          checked={row.is_delivered}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                          }}
+                        >
+                          <Button
+                            variant="outlined"
+                            onClick={() => {
+                              setIdx(idx);
+                              setOpenUpdateSignings(true);
+                            }}
+                          >
+                            Update
+                          </Button>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outlined"
+                          onClick={() => {
+                            // handleDeleteSignings(idx);
+                            handleClickOpen();
+                          }}
+                          color="danger"
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                      <Dialog
+                        open={open}
+                        onClose={handleClose}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
                       >
-                        Update
-                      </Button>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      onClick={() => {
-                        // handleDeleteSignings(idx);
-                        handleClickOpen();
-                      }}
-                      color="danger"
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                  <Dialog
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                  >
-                    <DialogTitle id="alert-dialog-title">
-                      {"Delete the Student's Signing?"}
-                    </DialogTitle>
-                    <DialogContent>
-                      <DialogContentText id="alert-dialog-description">
-                        Are you sure?
-                      </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleClose}>Disagree</Button>
-                      <Button
-                        color="danger"
-                        onClick={() => {
-                          handleDeleteSignings(idx);
-                          handleClose();
-                        }}
-                        variant="outlined"
-                      >
-                        Agree
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                  {/* <td>{row.status}</td> */}
-                </TableRow>
-              ))
-            ) : (
-              <Box
-                sx={{ display: "grid", placeItems: "center", width: "90vw" }}
-              >
-                <Button startDecorator={<CircularProgress variant="solid" />}>
-                  Loading…
-                </Button>
-              </Box>
-            )}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[
-                  5,
-                  10,
-                  25,
-                  50,
-                  100,
-                  200,
-                  {
-                    label: "All",
-                    value: -1,
-                  },
-                ]}
-                colSpan={3}
-                count={signings ? signings.length : 0}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                SelectProps={{
-                  inputProps: {
-                    "aria-label": "rows per page",
-                  },
-                  native: true,
-                }}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                ActionsComponent={TablePaginationActions}
-              />
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </TableContainer>
+                        <DialogTitle id="alert-dialog-title">
+                          {"Delete the Student's Signing?"}
+                        </DialogTitle>
+                        <DialogContent>
+                          <DialogContentText id="alert-dialog-description">
+                            Are you sure?
+                          </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                          <Button onClick={handleClose}>Disagree</Button>
+                          <Button
+                            color="danger"
+                            onClick={() => {
+                              handleDeleteSignings(idx);
+                              handleClose();
+                            }}
+                            variant="outlined"
+                          >
+                            Agree
+                          </Button>
+                        </DialogActions>
+                      </Dialog>
+                      {/* <td>{row.status}</td> */}
+                    </TableRow>
+                  ))
+                : null}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TablePagination
+                  rowsPerPageOptions={[
+                    5,
+                    10,
+                    25,
+                    50,
+                    100,
+                    200,
+                    {
+                      label: "All",
+                      value: -1,
+                    },
+                  ]}
+                  colSpan={3}
+                  count={signings ? signings.length : 0}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  SelectProps={{
+                    inputProps: {
+                      "aria-label": "rows per page",
+                    },
+                    native: true,
+                  }}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  ActionsComponent={TablePaginationActions}
+                />
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Box sx={{ display: "grid", placeItems: "center" }}>
+          <Button
+            startDecorator={<CircularProgress variant="solid" />}
+            variant="soft"
+            size="lg"
+          >
+            Loading…
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }
