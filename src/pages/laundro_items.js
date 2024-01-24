@@ -281,7 +281,7 @@ export default function LaundroItems() {
         toast.error(error.response.data.message);
       });
   };
-  const handleDeleteSignings = (idx) => {
+  const handleDeleteSignings = (idxData) => {
     console.log(idxData);
 
     var data = new FormData();
@@ -542,6 +542,7 @@ export default function LaundroItems() {
           setoOenSignings={setoOenSignings}
           signings={signings}
           idx={idx}
+          idxData={idxData}
           setIdx={setIdx}
           setIdxData={setIdxData}
           setOpenUpdateSignings={setOpenUpdateSignings}
@@ -776,6 +777,7 @@ function Signings({
   setoOenSignings,
   signings,
   idx,
+  idxData,
   setIdx,
   setIdxData,
   setOpenUpdateSignings,
@@ -1039,7 +1041,7 @@ function Signings({
                         <Button
                           variant="outlined"
                           onClick={() => {
-                            // handleDeleteSignings(idx);
+                            setIdxData(row);
                             handleClickOpen();
                           }}
                           color="danger"
@@ -1066,7 +1068,7 @@ function Signings({
                           <Button
                             color="danger"
                             onClick={() => {
-                              handleDeleteSignings(idx);
+                              handleDeleteSignings(idxData);
                               handleClose();
                             }}
                             variant="outlined"
