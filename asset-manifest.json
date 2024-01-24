@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/Laundromat-Frontend/static/css/main.c74c2eb8.css",
-    "main.js": "/Laundromat-Frontend/static/js/main.226c65cc.js",
+    "main.js": "/Laundromat-Frontend/static/js/main.0b00bd0c.js",
     "index.html": "/Laundromat-Frontend/index.html",
     "main.c74c2eb8.css.map": "/Laundromat-Frontend/static/css/main.c74c2eb8.css.map",
-    "main.226c65cc.js.map": "/Laundromat-Frontend/static/js/main.226c65cc.js.map"
+    "main.0b00bd0c.js.map": "/Laundromat-Frontend/static/js/main.0b00bd0c.js.map"
   },
   "entrypoints": [
     "static/css/main.c74c2eb8.css",
-    "static/js/main.226c65cc.js"
+    "static/js/main.0b00bd0c.js"
   ]
 }
