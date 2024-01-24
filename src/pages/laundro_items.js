@@ -14,6 +14,8 @@ import Snackbar from "@mui/joy/Snackbar";
 import Link from "@mui/joy/Link";
 import CircularProgress from "@mui/joy/CircularProgress";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import * as XLSX from "xlsx";
+
 
 import axios from "axios";
 import PropTypes from "prop-types";
@@ -833,6 +835,40 @@ function Signings({
   // };
   const active = orderBy;
 
+  const handleExcelExport = () => {
+    //  var config_ = {
+    //    method: "post",
+    //    maxBodyLength: Infinity,
+    //    url: `https://su-bitspilani.org/su/signings-api/update_laundro_siginigs`,
+    //    headers: {
+    //      "x-authorization":
+    //        "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
+    //      "x-origin": "826bead8ad2ad9ce955028045788f371",
+    //      "X-COORD-ID": token,
+    //    },
+    //    data: data,
+    //  };
+    //  console.log(config_);
+    //  axios(config_)
+    //    .then(function (response) {
+    //      console.log(response.data);
+    //      setSnackbarData(response.data.message);
+    //      setOpen_snackbar(true);
+    //      setChange(!change);
+    //    })
+    //    .catch(function (error) {
+    //      console.log(error);
+    //      toast.error(error.response.data.message);
+    //    });
+
+    const worksheet = XLSX.utils.json_to_sheet(signings);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    //let buffer = XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
+    //XLSX.write(workbook, { bookType: "xlsx", type: "binary" });
+    XLSX.writeFile(workbook, "Laundromat_data.xlsx");
+  };
+
   return (
     <Box variant="outlined" color="neutral">
       <Box>
@@ -843,6 +879,9 @@ function Signings({
           }}
         >
           Create Signings
+        </Button>
+        <Button color="success" onClick={handleExcelExport} variant="outlined">
+          Export to Excel
         </Button>
         {/* <Button variant="outlined">Update Signings</Button> */}
         {/* <Button variant="outlined">Delete Signings</Button> */}
@@ -929,7 +968,7 @@ function Signings({
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
                       )
-                    : signings
+                    : stableSort(signings, getComparator(order, orderBy))
                   ).map((row, idx) => (
                     <TableRow key={idx}>
                       {console.log(row)}

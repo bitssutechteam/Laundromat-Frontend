@@ -4,8 +4,8 @@
   "homepage": "https://bitssutechteam.github.io/Laundromat-Frontend",
   "private": true,
   "dependencies": {
-    "@emotion/react": "^11.10.6",
-    "@emotion/styled": "^11.10.6",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.11.9",
     "@mui/joy": "^5.0.0-alpha.68",
     "@mui/material": "^5.11.10",
@@ -18,7 +18,8 @@
     "react-router-dom": "^6.8.1",
     "react-scripts": "5.0.1",
     "react-toastify": "^9.1.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "predeploy": "npm run build",
