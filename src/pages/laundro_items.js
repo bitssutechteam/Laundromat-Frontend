@@ -144,6 +144,7 @@ export default function LaundroItems() {
   const token = localStorage.getItem("token");
   const [open, setOpen] = React.useState(false);
   const [idx, setIdx] = React.useState();
+  const [idxData, setIdxData] = React.useState();
   const [openSignings, setoOenSignings] = React.useState(false);
   const [openUpdateSignings, setOpenUpdateSignings] = React.useState(false);
   const [data, setData] = useState();
@@ -240,6 +241,10 @@ export default function LaundroItems() {
         console.log(error);
       });
   };
+
+
+
+
   const handleUpdateSignings = (data_) => {
     var data = new FormData();
     data.append("email", data_.email);
@@ -277,12 +282,12 @@ export default function LaundroItems() {
       });
   };
   const handleDeleteSignings = (idx) => {
-    console.log(signings[idx]);
+    console.log(idxData);
 
     var data = new FormData();
-    console.log(signings[idx].event_name);
-    data.append("email", signings[idx].student.profile.email);
-    data.append("item_name", signings[idx].event_name);
+    console.log(idxData.event_name);
+    data.append("email", idxData.student.profile.email);
+    data.append("item_name", idxData.event_name);
 
     var config_ = {
       method: "post",
@@ -538,6 +543,7 @@ export default function LaundroItems() {
           signings={signings}
           idx={idx}
           setIdx={setIdx}
+          setIdxData={setIdxData}
           setOpenUpdateSignings={setOpenUpdateSignings}
           handleDeleteSignings={handleDeleteSignings}
           rowsPerPage={rowsPerPage}
@@ -612,7 +618,7 @@ export default function LaundroItems() {
         </DialogContent>
       </Dialog>
 
-      {signings && signings[idx] ? (
+      {signings && idxData ? (
         <Dialog
           open={openUpdateSignings}
           onClose={() => {
@@ -629,9 +635,9 @@ export default function LaundroItems() {
 
                 var data_ = {
                   email: formElements.email.value,
-                  item_name: signings[idx].event_name,
+                  item_name: idxData.event_name,
                   new_item_name: formElements.item_name.value,
-                  amount: signings[idx].quantity, //  major bt
+                  amount: idxData.quantity, //  major bt
                   qunatity_delivered: formElements.delivered.checked ? 1 : 0,
                   is_delivered:
                     formElements.delivered.checked
@@ -656,12 +662,12 @@ export default function LaundroItems() {
                 <Input
                   type="email"
                   name="email"
-                  defaultValue={signings[idx].student.profile.email}
+                  defaultValue={idxData.student.profile.email}
                   disabled
                 />
                 <Box sx={{ my: 1 }}>
                   <FormLabel>Card Given?</FormLabel>
-                  {signings[idx].is_delivered ? (
+                  {idxData.is_delivered ? (
                     <Checkbox name="delivered" type="checkbox" defaultChecked />
                   ) : (
                     <Checkbox name="delivered" type="checkbox" />
@@ -676,7 +682,7 @@ export default function LaundroItems() {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    defaultValue={signings[idx].event_name}
+                    defaultValue={idxData.event_name}
                     name="item_name"
                     sx={{
                       width: 200,
@@ -694,7 +700,7 @@ export default function LaundroItems() {
                 <Input
                   type="number"
                   name="quantity"
-                  defaultValue={signings[idx].quantity}
+                  defaultValue={idxData.quantity}
                   sx={{
                     width: 200,
                     height: 50,
@@ -702,13 +708,13 @@ export default function LaundroItems() {
                 />
               </FormControl>
               <FormControl sx={{ mx: 2 }}>
-                {console.log(signings[idx])}
+                {console.log(idxData)}
 
                 <FormLabel>Quantity Delivered</FormLabel>
                 <Input
                   type="number"
                   name="qunatity_delivered"
-                  defaultValue={signings[idx].quantity_delivered}
+                  defaultValue={idxData.quantity_delivered}
                   sx={{
                     width: 200,
                     height: 50,
@@ -771,6 +777,7 @@ function Signings({
   signings,
   idx,
   setIdx,
+  setIdxData,
   setOpenUpdateSignings,
   handleDeleteSignings,
   rowsPerPage,
@@ -1020,6 +1027,7 @@ function Signings({
                             variant="outlined"
                             onClick={() => {
                               setIdx(idx);
+                              setIdxData(row);
                               setOpenUpdateSignings(true);
                             }}
                           >
