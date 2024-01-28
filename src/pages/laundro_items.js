@@ -207,7 +207,9 @@ export default function LaundroItems() {
           get name() {
             return this.student.profile.name;
           },
-
+          get email_id() {
+            return this.student.profile.email;
+          },
           get bid() {
             return this.student.profile.bits_id;
           },
@@ -870,7 +872,7 @@ function Signings({
     //      toast.error(error.response.data.message);
     //    });
 
-    const worksheet = XLSX.utils.json_to_sheet(signings);
+    const worksheet = XLSX.utils.json_to_sheet(signings.map(({ email_id, ...rest }) => ({ email_id, ...rest })));
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
     //let buffer = XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
