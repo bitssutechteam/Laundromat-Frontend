@@ -27,7 +27,7 @@ function App() {
         />
         <Route path="/" element={<JoySignInSideTemplate />} />
         {localStorage.getItem("token") && (
-          <Route path="/Laundro_Items" element={<LaundroItems />} />
+          <Route path="/Laundromat-Frontend/Laundro_Items" element={<LaundroItems />} />
         )}
       </Routes>
     </BrowserRouter>
