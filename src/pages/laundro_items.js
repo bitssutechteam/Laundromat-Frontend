@@ -320,7 +320,7 @@ export default function LaundroItems() {
     data.append("description", data_l.description);
     data.append("event_venue", "");
     data.append("no_of_cycles", 1);
-    data.append("event_date", data_l.date);
+    data.append("signing_date", data_l.date);
 
     axios(config("add_laundro", "post", data)).then(function (response) {
       console.log(response.data);
@@ -449,7 +449,7 @@ export default function LaundroItems() {
                   <TableCell>Plan name</TableCell>
                   {/* <TableCell>Type</TableCell> */}
                   <TableCell>Price</TableCell>
-                  {/* <TableCell>event_date</TableCell>
+                  {/* <TableCell>signing_date</TableCell>
                   <TableCell>cancellation_end</TableCell> */}
                   {/* <th>Status</th> */}
                 </TableRow>
@@ -462,7 +462,7 @@ export default function LaundroItems() {
                         {/* <TableCell>{row.type}</TableCell> */}
                         <TableCell>{row.price}</TableCell>
                         {/* <TableCell>
-                          {new Date(row.event_date).toString()}
+                          {new Date(row.signing_date).toString()}
                         </TableCell>
                         <TableCell>
                           {new Date(row.cancellation_date).toString()}
@@ -512,7 +512,7 @@ export default function LaundroItems() {
                 </FormControl>
 
                 <FormControl sx={{ m: 1 }}>
-                  <FormLabel>event_date</FormLabel>
+                  <FormLabel>signing_date</FormLabel>
                   <Input type="date" name="date" />
                 </FormControl>
                 {/* <Box
@@ -984,10 +984,10 @@ function Signings({
                     <TableRow key={idx}>
                       {console.log(row)}
                       <TableCell>
-                        {new Date(row.event_date).toISOString().split("T")[0]}
+                        {new Date(row.signing_date).toISOString().split("T")[0]}
                       </TableCell>
                       <TableCell>
-                        {new Date(row.event_date).toLocaleTimeString("en-US")}
+                        {new Date(row.signing_date).toLocaleTimeString("en-US")}
                       </TableCell>
                       <TableCell>{row.student.profile.name}</TableCell>
                       {/* <TableCell>{row.student.profile.email}</TableCell> */}
