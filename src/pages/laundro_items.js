@@ -2,6 +2,7 @@ import * as React from "react";
 import { Tabs, Tab } from "@mui/material";
 import FormLabel, { formLabelClasses } from "@mui/joy/FormLabel";
 import Table from "@mui/material/Table";
+import Grid from '@mui/material/Grid';
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
@@ -140,7 +141,7 @@ function a11yProps(index) {
     "aria-controls": `simple-tabpanel-${index}`,
   };
 }
-export default function LaundroItems() {
+ export default function LaundroItems() {
   const token = localStorage.getItem("token");
   const [open, setOpen] = React.useState(false);
   const [idx, setIdx] = React.useState();
@@ -157,7 +158,7 @@ export default function LaundroItems() {
   const [SearchQuery, setSearchQuery] = React.useState();
   const [SearchQueryValue, setSearchQueryValue] = React.useState("");
   const [snackbarData, setSnackbarData] = React.useState();
-
+ 
   // const emptyRows =
   //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -180,7 +181,8 @@ export default function LaundroItems() {
     return {
       method: method,
       maxBodyLength: Infinity,
-      url: `https://su-bitspilani.org/su/signings-api/${url}`,
+      // url: `https://su-bitspilani.org/su/signings-api/${url}`,
+      url: `https://onetap.su-bitspilani.org/su/signings-api/${url}`,
       headers: {
         "x-authorization":
           "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
@@ -218,24 +220,23 @@ export default function LaundroItems() {
       setOGSignings(response.data.data.signings);
     });
   }, [token, change]);
-
+ 
   const [value, setValue] = React.useState(0);
   const handleChange = (event, newValue) => {
     setValue(newValue);
-  };
+  }; 
 
   const handleCreateSignings = (data_s) => {
     var data = new FormData();
     data.append("email", data_s.email);
     data.append("item_name", data_s.item_name);
     data.append("quantity", data_s.quantity);
-    console.log(data);
     axios(config("add_laundro_siginigs", "post", data))
       .then(function (response) {
         setSnackbarData(response.data.message);
         setOpen_snackbar(true);
 
-        console.log(response.data);
+        // console.log(response.data);
         setChange(!change);
       })
       .catch(function (error) {
@@ -256,12 +257,14 @@ export default function LaundroItems() {
     data.append("quantity_delivered", data_.qunatity_delivered);
     data.append("amount", data_.amount);
     data.append("is_delivered", data_.is_delivered);
-    console.log(data);
+    data.append("laundro_billed", data_.laundro_billed);
+    console.log(data_);
 
     var config_ = {
       method: "post",
       maxBodyLength: Infinity,
-      url: `https://su-bitspilani.org/su/signings-api/update_laundro_siginigs`,
+      // url: `https://su-bitspilani.org/su/signings-api/update_laundro_siginigs`,
+      url: `https://onetap.su-bitspilani.org/su/signings-api/update_laundro_siginigs`,
       headers: {
         "x-authorization":
           "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
@@ -270,7 +273,7 @@ export default function LaundroItems() {
       },
       data: data,
     };
-    console.log(config_);
+    // console.log(config_);
     axios(config_)
       .then(function (response) {
         console.log(response.data);
@@ -293,7 +296,8 @@ export default function LaundroItems() {
 
     var config_ = {
       method: "post",
-      url: "https://su-bitspilani.org/su/signings-api/delete_laundro_signings",
+      // url: "https://su-bitspilani.org/su/signings-api/delete_laundro_signings",
+      url: "https://onetap.su-bitspilani.org/su/signings-api/delete_laundro_signings",
       headers: {
         "x-authorization":
           "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
@@ -634,7 +638,7 @@ export default function LaundroItems() {
               onSubmit={(event) => {
                 event.preventDefault();
                 const formElements = event.currentTarget.elements;
-                console.log();
+                console.log(formElements);
 
                 var data_ = {
                   email: formElements.email.value,
@@ -648,14 +652,20 @@ export default function LaundroItems() {
                       .charAt(0)
                       .toUpperCase() +
                     formElements.delivered.checked.toString().slice(1),
+                  laundro_billed:
+                    formElements.billed.checked
+                      .toString()
+                      .charAt(0)
+                      .toUpperCase() +
+                    formElements.billed.checked.toString().slice(1),
                 };
-
+                console.log(data_)
                 handleUpdateSignings(data_);
                 setOpenUpdateSignings(false);
                 // handleLogin(data_);
               }}
             >
-              <FormControl
+              {/* <FormControl
                 sx={{
                   width: 250,
                   height: 50,
@@ -676,12 +686,19 @@ export default function LaundroItems() {
                     <Checkbox name="delivered" type="checkbox" />
                   )}
                 </Box>
-              </FormControl>
-
-              {data && (
+                <Box sx={{ my: 2 }}>
+                  <FormLabel>Billed?</FormLabel>
+                  {idxData.laundro_billed ? (
+                    <Checkbox name="billed" type="checkbox" defaultChecked />
+                  ) : (
+                    <Checkbox name="billed" type="checkbox" />
+                  )}
+                </Box>
+              </FormControl> 
+               {data && (
                 <FormControl sx={{ m: 1 }}>
                   <FormLabel>Plan Name</FormLabel>
-                  {/* <Input type="text" name="item_name" /> */}
+                  <Input type="text" name="item_name" />
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
@@ -697,7 +714,80 @@ export default function LaundroItems() {
                     ))}
                   </Select>
                 </FormControl>
-              )}
+              )} */}
+
+
+              <FormControl
+                  sx={{
+                    width: 500,
+                    height: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                  }}
+                >
+                  <Grid container spacing={2}>
+                    {/* Email Field */}
+                    <Grid item xs={6}>
+                      <FormLabel>Email</FormLabel>
+                      <Input
+                        type="email"
+                        name="email"
+                        defaultValue={idxData.student.profile.email}
+                        disabled
+                        sx={{ width: '100%' }}
+                      />
+                    </Grid>
+
+                    {/* Plan Name Dropdown */}
+                    <Grid item xs={6}>
+                      {data && (
+                        <FormControl sx={{ width: '100%' }}>
+                          <FormLabel>Plan Name</FormLabel>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            defaultValue={idxData.event_name}
+                            name="item_name"
+                            sx={{
+                              width: '100%',
+                              height: 40,
+                            }}
+                          >
+                            {data.map((laundro) => (
+                              <MenuItem key={laundro.name} value={laundro.name}>
+                                {laundro.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      )}
+                    </Grid>
+                  </Grid>
+
+                  <Grid container spacing={2}>
+                    {/* Card Given Field */}
+                    <Grid item xs={6}>
+                      <FormLabel>Card Given?</FormLabel>
+                      <Checkbox
+                        name="delivered"
+                        type="checkbox"
+                        defaultChecked={idxData.is_delivered}
+                      />
+                    </Grid>
+                      {/* {console.log(idxData)} */}
+                    {/* Billed Field */}
+                    <Grid item xs={6}>
+                      <FormLabel>Billed?</FormLabel>
+                      <Checkbox
+                        name="billed"
+                        type="checkbox"
+                        defaultChecked={idxData.laundro_billed}
+                      />
+                    </Grid>
+                  </Grid>
+                </FormControl>
+              
               {/* <FormControl>
                 <FormLabel>Amount</FormLabel>
                 <Input
@@ -880,6 +970,50 @@ function Signings({
     XLSX.writeFile(workbook, "Laundromat_data.xlsx");
   };
 
+
+  // for the confirmation of Billed all or not
+  const [openConfirmation, setOpenConfirmation] = useState(false);
+  const token = localStorage.getItem("token");
+  const  callApi = async   () => {
+  
+    var config_ = {
+         method: "post",
+         maxBodyLength: Infinity,
+         url: `https://onetap.su-bitspilani.org/su/signings-api/mark_all_signings_billed`,
+         headers: {
+           "x-authorization":
+             "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
+           "x-origin": "826bead8ad2ad9ce955028045788f371",
+           "X-COORD-ID": token,
+         },
+       };
+       console.log(config_);
+       axios(config_)
+         .then(function (response) {
+           console.log(response.data);
+           window.location.reload();
+         })
+         .catch(function (error) {
+           console.log(error);
+           toast.error(error.response.data.message);
+         });
+  
+  }
+  const handleBilledAll = () => {
+    setOpenConfirmation(true);
+  }
+  const handleCloseConfirmation = () => {
+    setOpenConfirmation(false);
+  };
+  const handleConfirm = () => {
+    callApi(); 
+    toast.info("All items have been successfully set to Billed.")
+    setOpenConfirmation(false); 
+    
+  };
+//Ends
+
+
   return (
     <Box variant="outlined" color="neutral">
       <Box>
@@ -896,6 +1030,35 @@ function Signings({
         </Button>
         {/* <Button variant="outlined">Update Signings</Button> */}
         {/* <Button variant="outlined">Delete Signings</Button> */}
+        <Button color="warning" onClick={handleBilledAll} variant="outlined">
+          Set All to Billed
+        </Button>
+        <Dialog
+        open={openConfirmation}
+        onClose={handleCloseConfirmation}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Change All To Billed?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to set the All to Billed?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmation}>Cancel</Button>
+          <Button
+            color="primary"   
+            onClick={handleConfirm}
+            variant="outlined"
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
       </Box>
       {signings ? (
         <TableContainer>
@@ -926,6 +1089,7 @@ function Signings({
                   order={order}
                   tableheadtitle={"bid"}
                   tableheadtitletag={"BITS ID"}
+                  
                 />
                 {/* <TableCell>ID</TableCell> */}
                 <Tablehead
@@ -936,6 +1100,7 @@ function Signings({
                   tableheadtitletag={"Hostel"}
                 />
                 <Tablehead
+                
                   createSortHandler={createSortHandler}
                   active={active}
                   order={order}
@@ -944,15 +1109,30 @@ function Signings({
                 />
 
                 {/* <TableCell>Room No</TableCell> */}
-                <TableCell>Mobile No</TableCell>
+                <Tablehead
+                  createSortHandler={createSortHandler}
+                  active={active}
+                  order={order}
+                  tableheadtitle={"mobile_no"}
+                  tableheadtitletag={"Mobile No."}
+                />
+                
+                
 
                 <Tablehead
                   createSortHandler={createSortHandler}
                   active={active}
                   order={order}
                   tableheadtitle={"Plan Code"}
+                  tableheadtitletag={"Plan Code"}
                 />
-                <TableCell>Qt</TableCell>
+                <Tablehead
+                  createSortHandler={createSortHandler}
+                  active={active}
+                  order={order}
+                  tableheadtitle={"Qty"}
+                  tableheadtitletag={"Qty"}
+                />
                 <Tablehead
                   createSortHandler={createSortHandler}
                   active={active}
@@ -966,6 +1146,13 @@ function Signings({
                   order={order}
                   tableheadtitle={"is_delivered"}
                   tableheadtitletag={"Card Given"}
+                />
+                <Tablehead
+                  createSortHandler={createSortHandler}
+                  active={active}
+                  order={order}
+                  tableheadtitle={"laundro_billed"}
+                  tableheadtitletag={"Billed"}
                 />
                 <TableCell />
                 <TableCell />
@@ -981,8 +1168,9 @@ function Signings({
                       )
                     : stableSort(signings, getComparator(order, orderBy))
                   ).map((row, idx) => (
+                    
                     <TableRow key={idx}>
-                      {console.log(row)}
+                      {/* {console.log(row)} */}
                       <TableCell>
                         {new Date(row.signing_date).toISOString().split("T")[0]}
                       </TableCell>
@@ -992,9 +1180,12 @@ function Signings({
                       <TableCell>{row.student.profile.name}</TableCell>
                       {/* <TableCell>{row.student.profile.email}</TableCell> */}
                       {/* <TableCell>{row.student.profile.id}</TableCell> */}
-                      <TableCell>{row.student.profile.bits_id}</TableCell>
+                      <TableCell
+                      >{row.student.profile.bits_id}</TableCell>
+                      
                       <TableCell>{row.hostel}</TableCell>
-                      <TableCell>{row.room_no}</TableCell>
+                      <TableCell
+                      style={{ width: '20px', textAlign: 'center', whiteSpace: 'nowrap' }}>{row.room_no}</TableCell>
                       <TableCell>{row.student.profile.phone_number}</TableCell>
                       <TableCell>{row.event_name}</TableCell>
                       <TableCell>{row.quantity}</TableCell>
@@ -1018,6 +1209,14 @@ function Signings({
                           variant="outlined"
                           // value={row.is_delivered ? "checked" : ""}
                           checked={row.is_delivered}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Checkbox
+                          color="neutral"
+                          disabled
+                          variant="outlined"
+                          checked={row.laundro_billed}
                         />
                       </TableCell>
                       <TableCell>

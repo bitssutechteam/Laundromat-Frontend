@@ -54,12 +54,13 @@ export default function JoySignInSideTemplate() {
     var config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "https://su-bitspilani.org/su/users/coordinator-login/",
+      // url: "https://su-bitspilani.org/su/users/coordinator-login/",
+      url: "https://onetap.su-bitspilani.org/su/users/coordinator-login/",
       headers: {
-        // "x-authorization":
-        //   "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
-        // "x-origin": "826bead8ad2ad9ce955028045788f371",
-        // "Content-Type": "application/json",
+        "x-authorization":
+          "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
+        "x-origin": "826bead8ad2ad9ce955028045788f371",
+        "Content-Type": "application/json",
       },
       data: data,
     };
@@ -69,13 +70,32 @@ export default function JoySignInSideTemplate() {
 
         localStorage.setItem("token", response.data.data.HTTP_X_COORD_ID);
         toast.info(response.data.message)
-        localStorage.getItem("token") && navigate("/Laundro_Items");
+        localStorage.getItem("token") && navigate("/Laundromat-Frontend/Laundro_Items");
       })
       .catch(function (error) {
-        // toast.error(error); 
-        // console.log(error);
+        if (error.response) {
+          const errorMessage =
+            error.response.data?.message || "An error occurred.";
+          toast.error(errorMessage);
+        } else if (error.request) {
+          toast.error("No response from the server.");
+        }
       });
   };
+
+
+
+
+  // to login as a mock user
+  // const handleLogin = (data) => {
+  //   localStorage.setItem("token", "mock-token-for-dev");
+  //   toast.info("Logged in as mock user");
+  
+  //   navigate("/Laundromat-Frontend/Laundro_Items");
+  // };
+  
+
+
   const navigate = useNavigate();
 
   return (
@@ -132,7 +152,7 @@ export default function JoySignInSideTemplate() {
               fontWeight="lg"
               startDecorator={
                 <AspectRatio ratio="1" sx={{ minWidth: 60 }}>
-                  <img src="Logo.png"></img>
+                  <img src="Logo.png" alt="Laundromat"></img>
                 </AspectRatio>
               }
             ></Typography>
