@@ -15,6 +15,7 @@ import Input from "@mui/joy/Input";
 import Typography from "@mui/joy/Typography";
 import axios from "axios";
 import { toast } from "react-toastify";
+const testlogin_api=process.env.REACT_APP_Test_Login_API_URL;
 
 function ColorSchemeToggle({ onClick, ...props }) {
   const { mode, setMode } = useColorScheme();
@@ -54,8 +55,7 @@ export default function JoySignInSideTemplate() {
     var config = {
       method: "post",
       maxBodyLength: Infinity,
-      // url: "https://su-bitspilani.org/su/users/coordinator-login/",
-      url: "https://onetap.su-bitspilani.org/su/users/coordinator-login/",
+      url: `${testlogin_api}`,
       headers: {
         "x-authorization":
           "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
@@ -64,7 +64,7 @@ export default function JoySignInSideTemplate() {
       },
       data: data,
     };
-
+    console.log(testlogin_api);
     axios(config)
       .then(function (response) {
 

@@ -158,7 +158,8 @@ function a11yProps(index) {
   const [SearchQuery, setSearchQuery] = React.useState();
   const [SearchQueryValue, setSearchQueryValue] = React.useState("");
   const [snackbarData, setSnackbarData] = React.useState();
- 
+  const test_api=process.env.REACT_APP_Test_API_URL
+  const main_api=process.env.REACT_APP_Main_API_URL
   // const emptyRows =
   //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -181,8 +182,7 @@ function a11yProps(index) {
     return {
       method: method,
       maxBodyLength: Infinity,
-      // url: `https://su-bitspilani.org/su/signings-api/${url}`,
-      url: `https://onetap.su-bitspilani.org/su/signings-api/${url}`,
+      url: `${test_api}${url}`,
       headers: {
         "x-authorization":
           "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
@@ -263,8 +263,7 @@ function a11yProps(index) {
     var config_ = {
       method: "post",
       maxBodyLength: Infinity,
-      // url: `https://su-bitspilani.org/su/signings-api/update_laundro_siginigs`,
-      url: `https://onetap.su-bitspilani.org/su/signings-api/update_laundro_siginigs`,
+      url: `${test_api}update_laundro_siginigs`,
       headers: {
         "x-authorization":
           "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
@@ -296,8 +295,7 @@ function a11yProps(index) {
 
     var config_ = {
       method: "post",
-      // url: "https://su-bitspilani.org/su/signings-api/delete_laundro_signings",
-      url: "https://onetap.su-bitspilani.org/su/signings-api/delete_laundro_signings",
+      url: `${test_api}delete_laundro_signings`,
       headers: {
         "x-authorization":
           "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
@@ -940,7 +938,7 @@ function Signings({
     //  var config_ = {
     //    method: "post",
     //    maxBodyLength: Infinity,
-    //    url: `https://su-bitspilani.org/su/signings-api/update_laundro_siginigs`,
+    //    url: `${main_api}update_laundro_siginigs`,
     //    headers: {
     //      "x-authorization":
     //        "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
@@ -974,12 +972,14 @@ function Signings({
   // for the confirmation of Billed all or not
   const [openConfirmation, setOpenConfirmation] = useState(false);
   const token = localStorage.getItem("token");
+  const test_api=process.env.REACT_APP_Test_API_URL
+  const main_api=process.env.REACT_APP_Main_API_URL
   const  callApi = async   () => {
   
     var config_ = {
          method: "post",
          maxBodyLength: Infinity,
-         url: `https://onetap.su-bitspilani.org/su/signings-api/mark_all_signings_billed`,
+         url: `${test_api}mark_all_signings_billed`,
          headers: {
            "x-authorization":
              "048f1579b8b8f75f609f036ecb26623ddd0f58d4ff9193a14d4284ac4ff0c87b9093ed08947f25ea72cd141b23be5f2b12e10ccf4522c327f8172f76d1554fb6",
