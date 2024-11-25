@@ -960,8 +960,12 @@ function Signings({
     //      toast.error(error.response.data.message);
     //    });
 
-    const worksheet = XLSX.utils.json_to_sheet(signings.map(({ email_id, ...rest }) => ({ email_id, ...rest })));
-    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(
+      signings
+        .filter(({ laundro_billed }) => !laundro_billed) // Keep only items where laundro_billed is false
+        .map(({ email_id,bid,name,event_name,hostel,room_no,price,phone_no,...rest }) => ({email_id,bid,name,event_name,hostel,room_no,price,phone_no})) // Exclude laundro_billed from the resulting objects
+    );
+        const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
     //let buffer = XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
     //XLSX.write(workbook, { bookType: "xlsx", type: "binary" });
