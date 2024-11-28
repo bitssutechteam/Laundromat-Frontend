@@ -1,9 +1,9 @@
+## Deployment Guide for gh-pages
+[https://github.com/gitname/react-gh-pages](https://github.com/gitname/react-gh-pages)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Deployment Guide for gh-pages
-[https://github.com/gitname/react-gh-pages](https://github.com/gitname/react-gh-pages)
 
 ## Available Scripts
 
